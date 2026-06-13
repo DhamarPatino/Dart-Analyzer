@@ -56,7 +56,7 @@ tokens = (
     'DIVIDE_ASSIGN',
 
     'COMMENT_SINGLE',
-    'COMMENT_MULTI'
+    'COMMENT_MULTI',
 #-- Dhamar Patiño
 
 #-- Cristina Pihuave
@@ -161,10 +161,12 @@ t_ignore = ' \t\r'
 # Comentarios
 def t_COMMENT_SINGLE(t):
     r'//.*'
+    return t
 
 def t_COMMENT_MULTI(t):
     r'/\*[\s\S]*?\*/'
     t.lexer.lineno += t.value.count('\n')
+    return t
 
 # Actualizar el contador de líneas
 def t_newline(t):
