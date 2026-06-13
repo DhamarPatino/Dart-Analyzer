@@ -1,0 +1,11 @@
+LexToken(INT_TYPE,'int',1,0)
+Error léxico en la línea 1, columna 5: el carácter '@' no es válido.
+LexToken(IDENTIFIER,'cantidad',1,5)
+LexToken(ASSIGN,'=',1,14)
+LexToken(INTEGER_LITERAL,10,1,16)
+LexToken(SEMICOLON,';',1,18)
+LexToken(DOUBLE_TYPE,'double',2,20)
+Error léxico en la línea 2, columna 8: '15iva' no es un identificador válido porque comienza con un dígito.
+LexToken(ASSIGN,'=',2,33)
+LexToken(DOUBLE_LITERAL,0.15,2,35)
+LexToken(SEMICOLON,';',2,39)
