@@ -1,4 +1,31 @@
 import ply.lex as lex
+import re
+
+data_types = {
+#-- Cristina Pihuave    
+    "int": "INT_TYPE",
+    "double": "DOUBLE_TYPE",
+    "String": "STRING_TYPE",
+    "bool": "BOOL_TYPE",
+    "List": "LIST_TYPE",
+    "Map": "MAP_TYPE",
+}
+
+reserved = {
+#-- Cristina Pihuave    
+    "var": "VAR",
+    "final": "FINAL",
+    "const": "CONST",
+    "if": "IF",
+    "else": "ELSE",
+    "for": "FOR",
+    "return": "RETURN",
+    "void": "VOID",
+    "import": "IMPORT",
+    "true": "TRUE",
+    "false": "FALSE",
+}
+
 
 tokens = (
 #-- Dhamar Patiño
