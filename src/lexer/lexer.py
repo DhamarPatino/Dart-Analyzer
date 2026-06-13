@@ -126,10 +126,6 @@ t_PLUS_ASSIGN = r'\+='
 t_MINUS_ASSIGN = r'-='
 t_TIMES_ASSIGN = r'\*='
 t_DIVIDE_ASSIGN = r'/='
-
-
-t_INCREMENT = r"\+\+"
-t_ARROW = r"=>"
 #-- Dhamar Patiño
 
 #-- Cristina Pihuave
@@ -195,7 +191,8 @@ def t_INTEGER_LITERAL(t):
     t.value = int(t.value)
     return t
 
-#manejar errores
+#Manejar errores
+
 def calculate_column(lexdata, lexpos):
     last_newline = lexdata.rfind("\n", 0, lexpos)
     return lexpos - last_newline
@@ -234,9 +231,7 @@ def t_error(t):
     register_error(t.lexer, message)
     t.lexer.skip(1)
 
-
-
-#-- Cristina Pihuave
+#-- Cristina Pihuave    
 
 #-- Dhamar Patiño
 lexer = lex.lex()
