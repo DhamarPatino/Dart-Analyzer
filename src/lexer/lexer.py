@@ -26,7 +26,10 @@ tokens = (
     'PLUS_ASSIGN',
     'MINUS_ASSIGN',
     'TIMES_ASSIGN',
-    'DIVIDE_ASSIGN'
+    'DIVIDE_ASSIGN',
+
+    'COMMENT_SINGLE',
+    'COMMENT_MULTI'
 )
 
 
@@ -61,6 +64,8 @@ def t_IDENTIFIER(t):
     r'[a-zA-Z_][a-zA-Z0-9_]*'
     return t
 
+
+#-- Dhamar Patiño
 # Ignorar espacios
 t_ignore = ' \t'
 
@@ -68,5 +73,17 @@ t_ignore = ' \t'
 def t_error(t):
     print(f"Caracter ilegal: {t.value[0]}")
     t.lexer.skip(1)
+
+
+def t_COMMENT_SINGLE(t):
+    r'//.*'
+
+def t_COMMENT_MULTI(t):
+    r'/\*[\s\S]*?\*/'
+    t.lexer.lineno += t.value.count('\n')
+
+def t_newline(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
 
 lexer = lex.lex()
