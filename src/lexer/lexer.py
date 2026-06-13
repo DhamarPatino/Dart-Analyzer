@@ -1,7 +1,7 @@
 import ply.lex as lex
 
 tokens = (
-    # Dhamar Patiño
+#-- Dhamar Patiño
     'IDENTIFIER',
     'PLUS',
     'MINUS',
@@ -30,9 +30,10 @@ tokens = (
 
     'COMMENT_SINGLE',
     'COMMENT_MULTI'
+#-- Dhamar Patiño
 )
 
-
+#-- Dhamar Patiño
 t_PLUS = r'\+'
 t_MINUS = r'-'
 t_MULTIPLY = r'\*'
@@ -64,8 +65,6 @@ def t_IDENTIFIER(t):
     r'[a-zA-Z_][a-zA-Z0-9_]*'
     return t
 
-
-#-- Dhamar Patiño
 # Ignorar espacios
 t_ignore = ' \t'
 
@@ -73,7 +72,6 @@ t_ignore = ' \t'
 def t_error(t):
     print(f"Caracter ilegal: {t.value[0]}")
     t.lexer.skip(1)
-
 
 def t_COMMENT_SINGLE(t):
     r'//.*'
@@ -87,3 +85,7 @@ def t_newline(t):
     t.lexer.lineno += len(t.value)
 
 lexer = lex.lex()
+
+
+
+
