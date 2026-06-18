@@ -1,37 +1,69 @@
-// Algoritmo de prueba Dhamar
+// Algoritmo de prueba Dhamar Patiño
+import 'dart:io';
 
 /*
-Evalúa operaciones sobre nota, asistencia y faltas para probar operadores del analizador léxico.
+Sistema de gestión de préstamos de una biblioteca universitaria.
+Valida tipos de datos, estructuras de datos, funciones,
+expresiones aritméticas, estructuras de control y entrada de datos.
 */
 
-double nota = 8.5;
-int asistencia = 90;
-int faltas = 2;
-int total = 10;
+const int maxPrestamos = 3;
+final String biblioteca = "Biblioteca Central";
 
-nota = nota + 1;
-nota = nota - 0.5;
-nota = nota * 2;
-nota = nota / 2;
-faltas = total % 3;
+var usuarioActivo = true;
+bool tieneMultas = false;
 
-nota += 1;
-nota -= 1;
-nota *= 2;
-nota /= 2;
+List<String> libros = [
+  "Estructuras de Datos",
+  "Compiladores",
+  "Ingenieria de Software"
+];
 
-if (nota >= 7 && asistencia >= 80) {
-    nota += 1;
+Map<String, int> ejemplaresDisponibles = {
+  "Estructuras de Datos": 5,
+  "Compiladores": 2,
+  "Ingenieria de Software": 4
+};
+
+double calcularPorcentajeDisponibilidad(int disponibles, int total) {
+  return (disponibles / total) * 100;
 }
 
-if (nota > 9 || asistencia < 75) {
-    faltas += 1;
-}
+int calcularDiasRetraso(int dias) => dias * dias;
 
-if (nota == 10 && asistencia != 0) {
-    total += 1;
-}
+void main() {
 
-if (!(asistencia <= 50)) {
-    total += 1;
+  print("Ingrese el nombre del usuario:");
+
+  String nombre = stdin.readLineSync()!;
+
+  print("Libros disponibles:");
+
+  for (int i = 0; i < 3; i++) {
+    print(libros[i]);
+  }
+
+  double porcentaje =
+      calcularPorcentajeDisponibilidad(
+          ejemplaresDisponibles["Compiladores"]!,
+          10);
+
+  int penalizacion = calcularDiasRetraso(2);
+
+  if (usuarioActivo &&
+      !tieneMultas &&
+      ejemplaresDisponibles["Compiladores"]! > 0) {
+
+    print("Usuario autorizado para préstamo");
+    print("Bienvenido, $nombre");
+    print("Biblioteca: $biblioteca");
+    print("Disponibilidad: $porcentaje");
+    print("Penalización calculada: $penalizacion");
+
+  } else {
+
+    print("No es posible realizar el préstamo");
+
+  }
+
 }
