@@ -1,6 +1,7 @@
 from pathlib import Path
 from datetime import datetime
 from lexer.lexer import lexer
+from parser.parser import parser
 
 #-- Dhamar Patiño
 BASE_DIR = Path(__file__).resolve().parent.parent
