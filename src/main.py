@@ -1,7 +1,7 @@
 from pathlib import Path
 from datetime import datetime
-from lexer.lexer import lexer
-from parser.parser import parser
+from src.lexer.lexer import lexer
+from src.parser.parser import parser, errores_sintacticos
 
 #-- Dhamar Patiño
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -93,3 +93,23 @@ with open(ruta_log, "w", encoding="utf-8") as log:
         
 print("\nAnálisis léxico completado.")
 print(f"Log generado: {ruta_log}")
+errores_sintacticos.clear()
+
+parser.parse(contenido)
+
+print("\nAnálisis sintáctico completado.")
+
+ruta_log_sintactico = (
+    ruta_logs /
+    f"sintactico-{nombre_autor}-{fecha}.txt"
+)
+
+with open(ruta_log_sintactico, "w", encoding="utf-8") as log:
+
+    if errores_sintacticos:
+        for error in errores_sintacticos:
+            log.write(error + "\n")
+    else:
+        log.write("No se encontraron errores sintácticos.\n")
+
+print(f"Log sintáctico generado: {ruta_log_sintactico}")

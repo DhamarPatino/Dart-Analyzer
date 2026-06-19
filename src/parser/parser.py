@@ -1,6 +1,7 @@
 import ply.yacc as yacc
 from src.lexer.lexer import tokens
 
+errores_sintacticos = []
 # -- Dhamar Patiño
 def p_programa(p):
     '''
@@ -22,7 +23,7 @@ def p_sentencia(p):
               | sentencia_if
               | impresion
               | declaracion_lista
-
+              | funcion_retorno
     '''
     pass
 
@@ -35,7 +36,7 @@ def p_declaracion(p):
 
 def p_error(p):
     if p:
-        print(f"Error sintáctico en '{p.value}'")
+        mensaje = f"Error sintáctico en '{p.value}' línea {p.lineno}"
     else:
         print("Error sintáctico al final del archivo")
 
@@ -55,7 +56,18 @@ def p_expresion(p):
               | TRUE
               | FALSE
               | IDENTIFIER
+              | llamada_funcion
     '''
+
+def p_expresion_operaciones(p):
+    '''
+    expresion : expresion PLUS expresion
+              | expresion MINUS expresion
+              | expresion MULTIPLY expresion
+              | expresion DIVIDE expresion
+              | expresion MODULO expresion
+    '''
+    pass
 
 def p_asignacion(p):
     '''
@@ -120,6 +132,45 @@ def p_declaracion_lista(p):
     declaracion_lista : LIST_TYPE LESS_THAN tipo GREATER_THAN IDENTIFIER ASSIGN lista SEMICOLON
     '''
     pass
+
+def p_parametro(p):
+    '''
+    parametro : tipo IDENTIFIER
+    '''
+    pass
+
+def p_parametros(p):
+    '''
+    parametros : parametro
+               | parametro COMMA parametros
+    '''
+    pass
+
+def p_retorno(p):
+    '''
+    retorno : RETURN expresion SEMICOLON
+    '''
+    pass
+
+def p_funcion_retorno(p):
+    '''
+    funcion_retorno : tipo IDENTIFIER LPAREN parametros RPAREN LBRACE retorno RBRACE
+    '''
+    pass
+
+def p_argumentos(p):
+    '''
+    argumentos : expresion
+               | expresion COMMA argumentos
+    '''
+    pass
+
+def p_llamada_funcion(p):
+    '''
+    llamada_funcion : IDENTIFIER LPAREN argumentos RPAREN
+    '''
+    pass
+
 
 # -- Dhamar Patiño
 
