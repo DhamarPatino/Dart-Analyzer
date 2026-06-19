@@ -1,0 +1,4 @@
+Error sintáctico en '// Prueba de errores léxicos' línea 18
+Error sintáctico en '=' línea 24
+Error sintáctico en '(' línea 32
+Error sintáctico en '}' línea 34

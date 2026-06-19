@@ -39,6 +39,9 @@ def p_error(p):
         mensaje = f"Error sintáctico en '{p.value}' línea {p.lineno}"
     else:
         print("Error sintáctico al final del archivo")
+    print(mensaje)
+    errores_sintacticos.append(mensaje)
+
 
 def p_tipo(p):
     '''

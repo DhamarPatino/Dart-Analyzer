@@ -95,9 +95,13 @@ print("\nAnálisis léxico completado.")
 print(f"Log generado: {ruta_log}")
 errores_sintacticos.clear()
 
-parser.parse(contenido)
+#-- Dhamar Patiño
+# Agrega las líneas de impresión y el parámetro debug=True dentro de parser.parse
+print("\n--- INICIO DEL RASTRO DE EJECUCIÓN SINTÁCTICA (DEBUG) ---")
+parser.parse(contenido, debug=True)
+print("--- FIN DEL RASTRO DE EJECUCIÓN SINTÁCTICA (DEBUG) ---\n")
 
-print("\nAnálisis sintáctico completado.")
+print("Análisis sintáctico completado.")
 
 ruta_log_sintactico = (
     ruta_logs /
@@ -113,3 +117,4 @@ with open(ruta_log_sintactico, "w", encoding="utf-8") as log:
         log.write("No se encontraron errores sintácticos.\n")
 
 print(f"Log sintáctico generado: {ruta_log_sintactico}")
+#-- Dhamar Patiño
