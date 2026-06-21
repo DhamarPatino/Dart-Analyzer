@@ -1,8 +1,9 @@
 import ply.lex as lex
 import re
 
+
+#-- Cristina Pihuave
 data_types = {
-#-- Cristina Pihuave    
     "int": "INT_TYPE",
     "double": "DOUBLE_TYPE",
     "String": "STRING_TYPE",
@@ -11,8 +12,8 @@ data_types = {
     "Map": "MAP_TYPE",
 }
 
+
 reserved = {
-#-- Cristina Pihuave    
     "var": "VAR",
     "final": "FINAL",
     "const": "CONST",
@@ -27,39 +28,46 @@ reserved = {
 }
 
 
-tokens = (
-#-- Dhamar Patiño
-    'IDENTIFIER',
-    'PLUS',
-    'MINUS',
-    'MULTIPLY',
-    'DIVIDE',
-    'MODULO',
-
-    'EQUALS',
-    'NOT_EQUALS',
-
-    'GREATER_THAN',
-    'LESS_THAN',
-    'GREATER_EQUAL',
-    'LESS_EQUAL',
-
-    'AND',
-    'OR',
-    'NOT',
-
-    'ASSIGN',
-
-    'PLUS_ASSIGN',
-    'MINUS_ASSIGN',
-    'TIMES_ASSIGN',
-    'DIVIDE_ASSIGN',
-
-    'COMMENT_SINGLE',
-    'COMMENT_MULTI',
-#-- Dhamar Patiño
-
+# Identificadores predefinidos utilizados por el subconjunto de Dart.
+predefined_identifiers = {
+    "print": "PRINT",
+    "stdin": "STDIN",
+    "readLineSync": "READ_LINE_SYNC",
+}
 #-- Cristina Pihuave
+
+
+tokens = (
+    #-- Dhamar Patiño
+    "IDENTIFIER",
+
+    "PLUS",
+    "MINUS",
+    "MULTIPLY",
+    "DIVIDE",
+    "MODULO",
+
+    "EQUALS",
+    "NOT_EQUALS",
+
+    "GREATER_THAN",
+    "LESS_THAN",
+    "GREATER_EQUAL",
+    "LESS_EQUAL",
+
+    "AND",
+    "OR",
+    "NOT",
+
+    "ASSIGN",
+
+    "PLUS_ASSIGN",
+    "MINUS_ASSIGN",
+    "TIMES_ASSIGN",
+    "DIVIDE_ASSIGN",
+    #-- Dhamar Patiño
+
+    #-- Cristina Pihuave
     "INT_TYPE",
     "DOUBLE_TYPE",
     "STRING_TYPE",
@@ -83,96 +91,123 @@ tokens = (
     "TRUE",
     "FALSE",
 
+    "PRINT",
+    "STDIN",
+    "READ_LINE_SYNC",
+
     "SEMICOLON",
-    "LBRACE",
-    "RBRACE",
+
+    "LLLAVE",
+    "RLLAVE",
+
     "LPAREN",
     "RPAREN",
-    "LBRACKET",
-    "RBRACKET",
-    "COMMA",
-    "DOT",
+
+    "LCORCHETE",
+    "RCORCHETE",
+
+    "COMA",
+    "PUNTO",
     "COLON",
+
     "INCREMENT",
     "ARROW",
-
-#-- Cristina Pihuave
-
+    #-- Cristina Pihuave
 )
 
+
 #-- Dhamar Patiño
-t_PLUS = r'\+'
-t_MINUS = r'-'
-t_MULTIPLY = r'\*'
-t_DIVIDE = r'/'
-t_MODULO = r'%'
+t_PLUS = r"\+"
+t_MINUS = r"-"
+t_MULTIPLY = r"\*"
+t_DIVIDE = r"/"
+t_MODULO = r"%"
 
-t_EQUALS = r'=='
-t_NOT_EQUALS = r'!='
+t_EQUALS = r"=="
+t_NOT_EQUALS = r"!="
 
-t_GREATER_EQUAL = r'>='
-t_LESS_EQUAL = r'<='
+t_GREATER_EQUAL = r">="
+t_LESS_EQUAL = r"<="
 
-t_GREATER_THAN = r'>'
-t_LESS_THAN = r'<'
+t_GREATER_THAN = r">"
+t_LESS_THAN = r"<"
 
-t_AND = r'&&'
-t_OR = r'\|\|'
-t_NOT = r'!'
+t_AND = r"&&"
+t_OR = r"\|\|"
+t_NOT = r"!"
 
-t_ASSIGN = r'='
+t_ASSIGN = r"="
 
-t_PLUS_ASSIGN = r'\+='
-t_MINUS_ASSIGN = r'-='
-t_TIMES_ASSIGN = r'\*='
-t_DIVIDE_ASSIGN = r'/='
+t_PLUS_ASSIGN = r"\+="
+t_MINUS_ASSIGN = r"-="
+t_TIMES_ASSIGN = r"\*="
+t_DIVIDE_ASSIGN = r"/="
 #-- Dhamar Patiño
+
 
 #-- Cristina Pihuave
 t_INCREMENT = r"\+\+"
 t_ARROW = r"=>"
+
 t_SEMICOLON = r";"
-t_LBRACE = r"\{"
-t_RBRACE = r"\}"
+
+# Llaves
+t_LLLAVE = r"\{"
+t_RLLAVE = r"\}"
+
+# Paréntesis
 t_LPAREN = r"\("
 t_RPAREN = r"\)"
-t_LBRACKET = r"\["
-t_RBRACKET = r"\]"
-t_COMMA = r","
-t_DOT = r"\."
+
+# Corchetes
+t_LCORCHETE = r"\["
+t_RCORCHETE = r"\]"
+
+t_COMA = r","
+t_PUNTO = r"\."
 t_COLON = r":"
 #-- Cristina Pihuave
 
+
 #-- Dhamar Patiño
-# Variables
+# Variables, palabras reservadas, tipos e identificadores predefinidos.
 def t_IDENTIFIER(t):
     r"[A-Za-z_][A-Za-z0-9_]*"
 
     t.type = reserved.get(
         t.value,
-        data_types.get(t.value, "IDENTIFIER")
+        data_types.get(
+            t.value,
+            predefined_identifiers.get(
+                t.value,
+                "IDENTIFIER"
+            )
+        )
     )
 
     return t
 
-# Ignorar espacios, tabulaciones y retorno de carro
-t_ignore = ' \t\r'
 
-# Comentarios
+# Ignorar espacios, tabulaciones y retorno de carro.
+t_ignore = " \t\r"
+
+
+# Los comentarios se reconocen, pero no se envían al parser.
 def t_COMMENT_SINGLE(t):
-    r'//.*'
-    return t
+    r"//[^\n]*"
+    pass
+
 
 def t_COMMENT_MULTI(t):
-    r'/\*[\s\S]*?\*/'
-    t.lexer.lineno += t.value.count('\n')
-    return t
+    r"/\*[\s\S]*?\*/"
+    t.lexer.lineno += t.value.count("\n")
+    pass
 
-# Actualizar el contador de líneas
+
+# Actualizar el contador de líneas.
 def t_newline(t):
-    r'\n+'
+    r"\n+"
     t.lexer.lineno += len(t.value)
-
 #-- Dhamar Patiño
 
 
@@ -193,20 +228,31 @@ def t_INTEGER_LITERAL(t):
     t.value = int(t.value)
     return t
 
-#Manejar errores
 
+# Manejo de errores léxicos.
 def calculate_column(lexdata, lexpos):
-    last_newline = lexdata.rfind("\n", 0, lexpos)
+    last_newline = lexdata.rfind(
+        "\n",
+        0,
+        lexpos
+    )
+
     return lexpos - last_newline
 
 
 def register_error(lexer_instance, message):
-    lexer_instance.pending_errors.append(message)
+    lexer_instance.pending_errors.append(
+        message
+    )
+
 
 def t_error(t):
-    column = calculate_column(t.lexer.lexdata, t.lexpos)
+    column = calculate_column(
+        t.lexer.lexdata,
+        t.lexpos
+    )
 
-    # Detectar secuencias inválidas como 2saldo o 15iva
+    # Detectar secuencias inválidas como 2saldo o 15iva.
     invalid_identifier = re.match(
         r"\d+(?:\.\d+)?[A-Za-z_][A-Za-z0-9_]*",
         t.value
@@ -221,26 +267,38 @@ def t_error(t):
             "válido porque comienza con un dígito."
         )
 
-        register_error(t.lexer, message)
-        t.lexer.skip(len(value))
+        register_error(
+            t.lexer,
+            message
+        )
+
+        t.lexer.skip(
+            len(value)
+        )
+
         return
+
     # Detectar caracteres inválidos como @.
     message = (
         f"Error léxico en la línea {t.lexer.lineno}, "
-        f"columna {column}: el carácter '{t.value[0]}' no es válido."
+        f"columna {column}: el carácter "
+        f"'{t.value[0]}' no es válido."
     )
 
-    register_error(t.lexer, message)
-    t.lexer.skip(1)
+    register_error(
+        t.lexer,
+        message
+    )
 
-#-- Cristina Pihuave    
+    t.lexer.skip(1)
+#-- Cristina Pihuave
+
 
 #-- Dhamar Patiño
 lexer = lex.lex()
+#-- Dhamar Patiño
+
 
 #-- Cristina Pihuave
 lexer.pending_errors = []
-
-
-
-
+#-- Cristina Pihuave

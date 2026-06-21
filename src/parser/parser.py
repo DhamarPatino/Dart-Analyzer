@@ -2,182 +2,574 @@ import ply.yacc as yacc
 from src.lexer.lexer import tokens
 
 errores_sintacticos = []
-# -- Dhamar Patiño
+
+
+# REGLAS GENERALES DEL PROGRAMA
+
+#-- Dhamar Patiño
 def p_programa(p):
-    '''
-    programa : lista_sentencias
-    '''
+    """
+    programa : lista_sentencias_opcional
+    """
     pass
+
+
+def p_lista_sentencias_opcional(p):
+    """
+    lista_sentencias_opcional : lista_sentencias
+                              | vacio
+    """
+    pass
+
 
 def p_lista_sentencias(p):
-    '''
+    """
     lista_sentencias : sentencia
                      | lista_sentencias sentencia
-    '''
+    """
     pass
-    
+
+
 def p_sentencia(p):
-    '''
-    sentencia : declaracion
+    """
+    sentencia : importacion
+              | declaracion
               | asignacion
-              | sentencia_if
               | impresion
-              | declaracion_lista
-              | funcion_retorno
-    '''
+              | sentencia_if
+              | sentencia_for
+              | funcion_clasica
+              | funcion_flecha
+              | retorno
+              | llamada_funcion SEMICOLON
+              | llamada_metodo SEMICOLON
+    """
     pass
-
-def p_declaracion(p):
-    '''
-    declaracion : tipo IDENTIFIER ASSIGN expresion SEMICOLON
-                | VAR IDENTIFIER ASSIGN expresion SEMICOLON
-    '''
-    pass
-
-def p_error(p):
-    if p:
-        mensaje = f"Error sintáctico en '{p.value}' línea {p.lineno}"
-    else:
-        print("Error sintáctico al final del archivo")
-    print(mensaje)
-    errores_sintacticos.append(mensaje)
+#-- Dhamar Patiño
 
 
-def p_tipo(p):
-    '''
+# DECLARACIÓN DE VARIABLES
+
+
+# TIPOS DE DATOS PRIMITIVOS Y LIST
+
+#-- Dhamar Patiño
+def p_tipo_primitivo(p):
+    """
     tipo : INT_TYPE
          | DOUBLE_TYPE
          | STRING_TYPE
          | BOOL_TYPE
-    '''
-
-def p_expresion(p):
-    '''
-    expresion : INTEGER_LITERAL
-              | DOUBLE_LITERAL
-              | STRING_LITERAL
-              | TRUE
-              | FALSE
-              | IDENTIFIER
-              | llamada_funcion
-    '''
-
-def p_expresion_operaciones(p):
-    '''
-    expresion : expresion PLUS expresion
-              | expresion MINUS expresion
-              | expresion MULTIPLY expresion
-              | expresion DIVIDE expresion
-              | expresion MODULO expresion
-    '''
+    """
     pass
 
+
+def p_tipo_lista(p):
+    """
+    tipo : LIST_TYPE LESS_THAN tipo GREATER_THAN
+    """
+    pass
+#-- Dhamar Patiño
+
+
+# TIPO DE DATO MAP Y TIPO OPCIONAL
+
+#-- Cristina Pihuave
+def p_tipo_mapa(p):
+    """
+    tipo : MAP_TYPE LESS_THAN tipo COMA tipo GREATER_THAN
+    """
+    pass
+
+
+def p_tipo_opcional(p):
+    """
+    tipo_opcional : tipo
+                  | vacio
+    """
+    pass
+#-- Cristina Pihuave
+
+
+# DECLARACIÓN CON TIPO EXPLÍCITO
+
+#-- Dhamar Patiño
+def p_declaracion_tipo_explicito(p):
+    """
+    declaracion : tipo IDENTIFIER ASSIGN expresion SEMICOLON
+    """
+    pass
+#-- Dhamar Patiño
+
+
+# DECLARACIÓN CON VAR, FINAL Y CONST
+
+#-- Cristina Pihuave
+def p_declaracion_inferencia_inmutable(p):
+    """
+    declaracion : VAR IDENTIFIER ASSIGN expresion SEMICOLON
+                | FINAL tipo_opcional IDENTIFIER ASSIGN expresion SEMICOLON
+                | CONST tipo_opcional IDENTIFIER ASSIGN expresion SEMICOLON
+    """
+    pass
+#-- Cristina Pihuave
+
+
+# ASIGNACIONES
+
+#-- Dhamar Patiño
 def p_asignacion(p):
-    '''
+    """
     asignacion : IDENTIFIER ASSIGN expresion SEMICOLON
-    '''
+               | IDENTIFIER PLUS_ASSIGN expresion SEMICOLON
+               | IDENTIFIER MINUS_ASSIGN expresion SEMICOLON
+               | IDENTIFIER TIMES_ASSIGN expresion SEMICOLON
+               | IDENTIFIER DIVIDE_ASSIGN expresion SEMICOLON
+    """
+    pass
+#-- Dhamar Patiño
 
 
-def p_comparacion(p):
-    '''
-    comparacion : expresion GREATER_THAN expresion
-                | expresion LESS_THAN expresion
-                | expresion GREATER_EQUAL expresion
-                | expresion LESS_EQUAL expresion
-                | expresion EQUALS expresion
-                | expresion NOT_EQUALS expresion
-    '''
+# EXPRESIONES ARITMÉTICAS
+
+#-- Cristina Pihuave
+def p_expresion_aditiva(p):
+    """
+    expresion_aditiva : expresion_aditiva PLUS expresion_multiplicativa
+                      | expresion_aditiva MINUS expresion_multiplicativa
+                      | expresion_multiplicativa
+    """
     pass
 
-def p_booleano(p):
-    '''
-    booleano : comparacion
-             | booleano AND comparacion
-             | booleano OR comparacion
-             | NOT booleano
-    '''
+
+def p_expresion_multiplicativa(p):
+    """
+    expresion_multiplicativa : expresion_multiplicativa MULTIPLY expresion_unaria
+                             | expresion_multiplicativa DIVIDE expresion_unaria
+                             | expresion_multiplicativa MODULO expresion_unaria
+                             | expresion_unaria
+    """
+    pass
+#-- Cristina Pihuave
+
+
+# EXPRESIONES BOOLEANAS
+
+#-- Dhamar Patiño
+def p_expresion(p):
+    """
+    expresion : expresion_or
+    """
     pass
 
+
+def p_expresion_or(p):
+    """
+    expresion_or : expresion_or OR expresion_and
+                 | expresion_and
+    """
+    pass
+
+
+def p_expresion_and(p):
+    """
+    expresion_and : expresion_and AND expresion_igualdad
+                  | expresion_igualdad
+    """
+    pass
+
+
+def p_expresion_igualdad(p):
+    """
+    expresion_igualdad : expresion_igualdad EQUALS expresion_relacional
+                       | expresion_igualdad NOT_EQUALS expresion_relacional
+                       | expresion_relacional
+    """
+    pass
+
+
+def p_expresion_relacional(p):
+    """
+    expresion_relacional : expresion_relacional GREATER_THAN expresion_aditiva
+                         | expresion_relacional LESS_THAN expresion_aditiva
+                         | expresion_relacional GREATER_EQUAL expresion_aditiva
+                         | expresion_relacional LESS_EQUAL expresion_aditiva
+                         | expresion_aditiva
+    """
+    pass
+
+
+def p_expresion_unaria(p):
+    """
+    expresion_unaria : NOT expresion_unaria
+                     | MINUS expresion_unaria
+                     | factor
+    """
+    pass
+
+
+def p_factor(p):
+    """
+    factor : INTEGER_LITERAL
+           | DOUBLE_LITERAL
+           | STRING_LITERAL
+           | TRUE
+           | FALSE
+           | IDENTIFIER
+           | llamada_funcion
+           | llamada_metodo
+           | ingreso_datos
+           | acceso_indice
+           | lista
+           | mapa
+           | LPAREN expresion RPAREN
+    """
+    pass
+#-- Dhamar Patiño
+
+
+# ESTRUCTURAS DE CONTROL
+
+
+# ESTRUCTURA IF-ELSE
+
+#-- Dhamar Patiño
 def p_bloque(p):
-    '''
-    bloque : LBRACE lista_sentencias RBRACE
-    '''
+    """
+    bloque : LLLAVE lista_sentencias_opcional RLLAVE
+    """
     pass
+
 
 def p_sentencia_if(p):
-    '''
-    sentencia_if : IF LPAREN booleano RPAREN bloque
-                 | IF LPAREN booleano RPAREN bloque ELSE bloque
-    '''
+    """
+    sentencia_if : IF LPAREN expresion RPAREN bloque
+                 | IF LPAREN expresion RPAREN bloque ELSE bloque
+    """
+    pass
+#-- Dhamar Patiño
+
+
+# ESTRUCTURA FOR
+
+#-- Cristina Pihuave
+def p_sentencia_for(p):
+    """
+    sentencia_for : FOR LPAREN inicializacion_for expresion SEMICOLON actualizacion_for RPAREN bloque
+    """
     pass
 
-def p_impresion(p):
-    '''
-    impresion : IDENTIFIER LPAREN expresion RPAREN SEMICOLON
-    '''
+
+def p_inicializacion_for(p):
+    """
+    inicializacion_for : tipo IDENTIFIER ASSIGN expresion SEMICOLON
+                       | VAR IDENTIFIER ASSIGN expresion SEMICOLON
+                       | IDENTIFIER ASSIGN expresion SEMICOLON
+    """
     pass
 
-def p_elementos(p):
-    '''
-    elementos : expresion
-              | expresion COMMA elementos
-    '''
-    pass
 
+def p_actualizacion_for(p):
+    """
+    actualizacion_for : IDENTIFIER INCREMENT
+                      | IDENTIFIER PLUS_ASSIGN expresion
+                      | IDENTIFIER MINUS_ASSIGN expresion
+                      | IDENTIFIER TIMES_ASSIGN expresion
+                      | IDENTIFIER DIVIDE_ASSIGN expresion
+    """
+    pass
+#-- Cristina Pihuave
+
+
+# ESTRUCTURAS DE DATOS
+
+
+# ESTRUCTURA DE DATOS LIST
+
+#-- Dhamar Patiño
 def p_lista(p):
-    '''
-    lista : LBRACKET elementos RBRACKET
-    '''
+    """
+    lista : LCORCHETE elementos_lista_opcionales RCORCHETE
+    """
     pass
 
-def p_declaracion_lista(p):
-    '''
-    declaracion_lista : LIST_TYPE LESS_THAN tipo GREATER_THAN IDENTIFIER ASSIGN lista SEMICOLON
-    '''
+
+def p_elementos_lista_opcionales(p):
+    """
+    elementos_lista_opcionales : elementos_lista
+                               | elementos_lista COMA
+                               | vacio
+    """
     pass
 
-def p_parametro(p):
-    '''
-    parametro : tipo IDENTIFIER
-    '''
+
+def p_elementos_lista(p):
+    """
+    elementos_lista : expresion
+                    | elementos_lista COMA expresion
+    """
+    pass
+#-- Dhamar Patiño
+
+
+# ESTRUCTURA DE DATOS MAP
+
+#-- Cristina Pihuave
+def p_mapa(p):
+    """
+    mapa : LLLAVE pares_mapa_opcionales RLLAVE
+    """
     pass
 
-def p_parametros(p):
-    '''
-    parametros : parametro
-               | parametro COMMA parametros
-    '''
+
+def p_pares_mapa_opcionales(p):
+    """
+    pares_mapa_opcionales : pares_mapa
+                          | pares_mapa COMA
+                          | vacio
+    """
     pass
+
+
+def p_pares_mapa(p):
+    """
+    pares_mapa : par_mapa
+               | pares_mapa COMA par_mapa
+    """
+    pass
+
+
+def p_par_mapa(p):
+    """
+    par_mapa : expresion COLON expresion
+    """
+    pass
+
+
+def p_acceso_indice(p):
+    """
+    acceso_indice : IDENTIFIER LCORCHETE expresion RCORCHETE
+    """
+    pass
+#-- Cristina Pihuave
+
+
+# DECLARACIONES DE FUNCIONES
+
+
+# FUNCIÓN CLÁSICA CON RETORNO O VOID
+
+#-- Dhamar Patiño
+def p_funcion_clasica(p):
+    """
+    funcion_clasica : tipo IDENTIFIER LPAREN parametros_opcionales RPAREN bloque
+                    | VOID IDENTIFIER LPAREN parametros_opcionales RPAREN bloque
+    """
+    pass
+
 
 def p_retorno(p):
-    '''
+    """
     retorno : RETURN expresion SEMICOLON
-    '''
+            | RETURN SEMICOLON
+    """
+    pass
+#-- Dhamar Patiño
+
+
+# FUNCIÓN FLECHA
+
+#-- Cristina Pihuave
+def p_funcion_flecha(p):
+    """
+    funcion_flecha : tipo IDENTIFIER LPAREN parametros_opcionales RPAREN ARROW expresion SEMICOLON
+    """
+    pass
+#-- Cristina Pihuave
+
+
+# PARÁMETROS
+
+#-- Dhamar Patiño
+def p_parametro(p):
+    """
+    parametro : tipo IDENTIFIER
+    """
     pass
 
-def p_funcion_retorno(p):
-    '''
-    funcion_retorno : tipo IDENTIFIER LPAREN parametros RPAREN LBRACE retorno RBRACE
-    '''
+
+def p_parametros(p):
+    """
+    parametros : parametro
+               | parametros COMA parametro
+    """
     pass
+
+
+def p_parametros_opcionales(p):
+    """
+    parametros_opcionales : parametros
+                          | vacio
+    """
+    pass
+#-- Dhamar Patiño
+
+
+# LLAMADAS DE FUNCIONES Y ARGUMENTOS
+
+#-- Dhamar Patiño
+def p_llamada_funcion(p):
+    """
+    llamada_funcion : IDENTIFIER LPAREN argumentos_opcionales RPAREN
+    """
+    pass
+
+
+def p_argumentos_opcionales(p):
+    """
+    argumentos_opcionales : argumentos
+                          | vacio
+    """
+    pass
+
 
 def p_argumentos(p):
-    '''
+    """
     argumentos : expresion
-               | expresion COMMA argumentos
-    '''
+               | argumentos COMA expresion
+    """
     pass
+#-- Dhamar Patiño
 
-def p_llamada_funcion(p):
-    '''
-    llamada_funcion : IDENTIFIER LPAREN argumentos RPAREN
-    '''
+
+# LLAMADAS DE MÉTODOS
+
+#-- Cristina Pihuave
+def p_llamada_metodo(p):
+    """
+    llamada_metodo : IDENTIFIER PUNTO IDENTIFIER LPAREN argumentos_opcionales RPAREN
+    """
     pass
+#-- Cristina Pihuave
 
 
-# -- Dhamar Patiño
-
-parser = yacc.yacc()
+# IMPRESIÓN Y SOLICITUD DE DATOS
 
 
+# IMPRESIÓN
 
+#-- Dhamar Patiño
+def p_impresion(p):
+    """
+    impresion : PRINT LPAREN expresion RPAREN SEMICOLON
+    """
+    pass
+#-- Dhamar Patiño
+
+
+# INGRESO DE DATOS
+
+#-- Dhamar Patiño
+def p_ingreso_datos(p):
+    """
+    ingreso_datos : STDIN PUNTO READ_LINE_SYNC LPAREN RPAREN
+                  | STDIN PUNTO READ_LINE_SYNC LPAREN RPAREN NOT
+    """
+    pass
+#-- Dhamar Patiño
+
+
+# IMPORTACIÓN DE LA BIBLIOTECA
+
+#-- Dhamar Patiño
+def p_importacion(p):
+    """
+    importacion : IMPORT STRING_LITERAL SEMICOLON
+    """
+    pass
+#-- Dhamar Patiño
+
+
+# PRODUCCIÓN VACÍA
+
+#-- Cristina Pihuave
+def p_vacio(p):
+    """
+    vacio :
+    """
+    pass
+#-- Cristina Pihuave
+
+
+# MANEJO DE ERRORES SINTÁCTICOS
+
+#-- Dhamar Patiño
+def calcular_columna(lexdata, lexpos):
+    ultimo_salto = lexdata.rfind(
+        "\n",
+        0,
+        lexpos
+    )
+
+    return lexpos - ultimo_salto
+
+
+def p_error(p):
+    if p:
+        columna = calcular_columna(
+            p.lexer.lexdata,
+            p.lexpos
+        )
+
+        if p.type == "RLLAVE":
+            sugerencia = (
+                "Revise si falta un punto y coma antes de cerrar "
+                "el bloque o si las llaves están balanceadas."
+            )
+
+        elif p.type == "SEMICOLON":
+            sugerencia = (
+                "Revise si falta una expresión o un valor antes "
+                "del punto y coma."
+            )
+
+        elif p.type in {
+            "RPAREN",
+            "RCORCHETE"
+        }:
+            sugerencia = (
+                "Revise los paréntesis, los corchetes y los "
+                "elementos de la expresión."
+            )
+
+        else:
+            sugerencia = (
+                "Revise la instrucción anterior y la posición "
+                "de este token."
+            )
+
+        mensaje = (
+            f"Error sintáctico en la línea {p.lineno}, "
+            f"columna {columna}: se encontró "
+            f"'{p.value}' ({p.type}). {sugerencia}"
+        )
+
+    else:
+        mensaje = (
+            "Error sintáctico al final del archivo: "
+            "la última instrucción o bloque está incompleto. "
+            "Revise los puntos y coma y los delimitadores."
+        )
+
+    print(mensaje)
+    errores_sintacticos.append(mensaje)
+#-- Dhamar Patiño
+
+
+# CONSTRUCCIÓN DEL ANALIZADOR SINTÁCTICO
+
+#-- Dhamar Patiño
+parser = yacc.yacc(
+    start="programa"
+)
+#-- Dhamar Patiño
