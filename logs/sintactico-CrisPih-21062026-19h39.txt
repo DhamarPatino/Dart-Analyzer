@@ -1,0 +1,1 @@
+Error sintáctico en la línea 2, columna 14: se encontró '=' (ASSIGN). Revise la instrucción anterior y la posición de este token.

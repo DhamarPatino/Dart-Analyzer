@@ -71,6 +71,23 @@ def p_sentencia(p):
     """
     pass
 #-- Dhamar Patiño
+#--Cristina Pihuave
+# RECUPERACIÓN DE ERRORES SINTÁCTICOS
+
+#-- Cristina Pihuave
+def p_elemento_programa_error(p):
+    """
+    elemento_programa : error SEMICOLON
+    """
+    pass
+
+
+def p_sentencia_error(p):
+    """
+    sentencia : error SEMICOLON
+    """
+    pass
+#-- Cristina Pihuave
 
 
 # DECLARACIÓN DE VARIABLES
@@ -534,7 +551,7 @@ def p_vacio(p):
 
 # MANEJO DE ERRORES SINTÁCTICOS
 
-#-- Dhamar Patiño
+#-- Cristina Pihuave
 def calcular_columna(lexdata, lexpos):
     ultimo_salto = lexdata.rfind(
         "\n",
@@ -600,7 +617,7 @@ def p_error(p):
 
     print(mensaje)
     errores_sintacticos.append(mensaje)
-#-- Dhamar Patiño
+#-- Cristina Pihuave
 
 
 # CONSTRUCCIÓN DEL ANALIZADOR SINTÁCTICO
