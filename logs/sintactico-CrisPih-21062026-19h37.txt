@@ -1,0 +1,1 @@
+Error sintáctico en la línea 1, columna 1: se encontró 'return' (RETURN). Revise la instrucción anterior y la posición de este token.
