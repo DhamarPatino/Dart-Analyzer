@@ -65,6 +65,8 @@ tokens = (
     "MINUS_ASSIGN",
     "TIMES_ASSIGN",
     "DIVIDE_ASSIGN",
+    "COMMENT_SINGLE",
+    "COMMENT_MULTI",
     #-- Dhamar Patiño
 
     #-- Cristina Pihuave

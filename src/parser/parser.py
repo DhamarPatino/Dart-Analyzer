@@ -9,7 +9,35 @@ errores_sintacticos = []
 #-- Dhamar Patiño
 def p_programa(p):
     """
-    programa : lista_sentencias_opcional
+    programa : lista_importaciones lista_elementos_programa
+             | lista_importaciones
+             | lista_elementos_programa
+             | vacio
+    """
+    pass
+
+
+def p_lista_importaciones(p):
+    """
+    lista_importaciones : importacion
+                        | lista_importaciones importacion
+    """
+    pass
+
+
+def p_lista_elementos_programa(p):
+    """
+    lista_elementos_programa : elemento_programa
+                             | lista_elementos_programa elemento_programa
+    """
+    pass
+
+
+def p_elemento_programa(p):
+    """
+    elemento_programa : declaracion
+                      | funcion_clasica
+                      | funcion_flecha
     """
     pass
 
@@ -32,14 +60,11 @@ def p_lista_sentencias(p):
 
 def p_sentencia(p):
     """
-    sentencia : importacion
-              | declaracion
+    sentencia : declaracion
               | asignacion
               | impresion
               | sentencia_if
               | sentencia_for
-              | funcion_clasica
-              | funcion_flecha
               | retorno
               | llamada_funcion SEMICOLON
               | llamada_metodo SEMICOLON
@@ -125,6 +150,11 @@ def p_asignacion(p):
                | IDENTIFIER MINUS_ASSIGN expresion SEMICOLON
                | IDENTIFIER TIMES_ASSIGN expresion SEMICOLON
                | IDENTIFIER DIVIDE_ASSIGN expresion SEMICOLON
+               | acceso_indice ASSIGN expresion SEMICOLON
+               | acceso_indice PLUS_ASSIGN expresion SEMICOLON
+               | acceso_indice MINUS_ASSIGN expresion SEMICOLON
+               | acceso_indice TIMES_ASSIGN expresion SEMICOLON
+               | acceso_indice DIVIDE_ASSIGN expresion SEMICOLON
     """
     pass
 #-- Dhamar Patiño
@@ -181,20 +211,20 @@ def p_expresion_and(p):
 
 def p_expresion_igualdad(p):
     """
-    expresion_igualdad : expresion_igualdad EQUALS expresion_relacional
-                       | expresion_igualdad NOT_EQUALS expresion_relacional
-                       | expresion_relacional
+    expresion_igualdad : expresion_relacional
+                       | expresion_relacional EQUALS expresion_relacional
+                       | expresion_relacional NOT_EQUALS expresion_relacional
     """
     pass
 
 
 def p_expresion_relacional(p):
     """
-    expresion_relacional : expresion_relacional GREATER_THAN expresion_aditiva
-                         | expresion_relacional LESS_THAN expresion_aditiva
-                         | expresion_relacional GREATER_EQUAL expresion_aditiva
-                         | expresion_relacional LESS_EQUAL expresion_aditiva
-                         | expresion_aditiva
+    expresion_relacional : expresion_aditiva
+                         | expresion_aditiva GREATER_THAN expresion_aditiva
+                         | expresion_aditiva LESS_THAN expresion_aditiva
+                         | expresion_aditiva GREATER_EQUAL expresion_aditiva
+                         | expresion_aditiva LESS_EQUAL expresion_aditiva
     """
     pass
 
@@ -245,6 +275,7 @@ def p_sentencia_if(p):
     """
     sentencia_if : IF LPAREN expresion RPAREN bloque
                  | IF LPAREN expresion RPAREN bloque ELSE bloque
+                 | IF LPAREN expresion RPAREN bloque ELSE sentencia_if
     """
     pass
 #-- Dhamar Patiño
@@ -540,6 +571,12 @@ def p_error(p):
             sugerencia = (
                 "Revise los paréntesis, los corchetes y los "
                 "elementos de la expresión."
+            )
+
+        elif p.type == "IMPORT":
+            sugerencia = (
+                "Las importaciones deben escribirse al inicio "
+                "del archivo, antes de las declaraciones."
             )
 
         else:
