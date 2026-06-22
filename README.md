@@ -14,6 +14,6 @@ Tecnologías:
 
 Estado:
 ✅ Analizador Léxico
-⬜ Analizador Sintáctico
+✅ Analizador Sintáctico
 ⬜ Analizador Semántico
 ⬜ Interfaz Gráfica
