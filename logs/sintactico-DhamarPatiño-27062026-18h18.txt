@@ -1,0 +1,3 @@
+Error sintáctico en la línea 48, columna 48: se encontró '!' (NOT). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 55, columna 44: se encontró '!' (NOT). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 63, columna 5: se encontró 'else' (ELSE). Revise la instrucción anterior y la posición de este token.

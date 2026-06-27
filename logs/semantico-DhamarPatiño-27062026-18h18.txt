@@ -1,0 +1,10 @@
+Error semántico: No se puede asignar un String a una variable bool.
+Error semántico: Variable 'disponibles' no declarada.
+Error semántico: Variable 'total' no declarada.
+Error semántico: Variable 'dias' no declarada.
+Error semántico: Variable 'dias' no declarada.
+Error semántico: No se puede asignar un None a una variable String.
+Error semántico: Variable 'i' no declarada.
+Error semántico: Variable 'i' no declarada.
+Error semántico: No se puede asignar un None a una variable int.
+Error semántico: Variable 'usuarioActivo' no declarada.

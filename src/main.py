@@ -3,6 +3,8 @@ from datetime import datetime
 
 from src.lexer.lexer import lexer
 from src.parser.parser import parser, errores_sintacticos
+from src.semantic.semantic import (tabla_simbolos, errores_semanticos,
+    verificar_variable, verificar_asignacion )
 
 
 #-- Dhamar Patiño
@@ -229,3 +231,55 @@ print(
     f"{ruta_log_sintactico}"
 )
 #-- Dhamar Patiño
+
+# ANÁLISIS SEMÁNTICO
+
+tabla_simbolos.clear()
+errores_semanticos.clear()
+
+lexer.lineno = 1
+lexer.pending_errors.clear()
+lexer.input(contenido)
+
+parser.parse(
+    contenido,
+    lexer=lexer,
+    tracking=True,
+    debug=False
+)
+
+ruta_log_semantico = (
+    ruta_logs
+    / f"semantico-{usuario_git}-{fecha}.txt"
+)
+
+with open(
+    ruta_log_semantico,
+    "w",
+    encoding="utf-8"
+) as log:
+
+    if errores_semanticos:
+
+        print("\nErrores semánticos encontrados:")
+
+        for error in errores_semanticos:
+            print(error)
+            log.write(error + "\n")
+
+    else:
+
+        print("No se encontraron errores semánticos.")
+
+        log.write(
+            "No se encontraron errores semánticos.\n"
+        )
+
+print(
+    "\nAnálisis semántico completado."
+)
+
+print(
+    f"Log semántico generado: "
+    f"{ruta_log_semantico}"
+)

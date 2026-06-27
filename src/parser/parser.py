@@ -1,5 +1,8 @@
 import ply.yacc as yacc
 from src.lexer.lexer import tokens
+from src.semantic.semantic import (tabla_simbolos, errores_semanticos,
+    registrar_variable, verificar_variable, obtener_tipo, verificar_asignacion
+)
 
 errores_sintacticos = []
 
@@ -103,14 +106,14 @@ def p_tipo_primitivo(p):
          | STRING_TYPE
          | BOOL_TYPE
     """
-    pass
+    p[0] = p[1]
 
 
 def p_tipo_lista(p):
     """
     tipo : LIST_TYPE LESS_THAN tipo GREATER_THAN
     """
-    pass
+    p[0] = "List"
 #-- Dhamar Patiño
 
 
@@ -121,7 +124,7 @@ def p_tipo_mapa(p):
     """
     tipo : MAP_TYPE LESS_THAN tipo COMA tipo GREATER_THAN
     """
-    pass
+    p[0] = "Map"
 
 
 def p_tipo_opcional(p):
@@ -129,7 +132,8 @@ def p_tipo_opcional(p):
     tipo_opcional : tipo
                   | vacio
     """
-    pass
+    if len(p)==2:
+        p[0]=p[1]
 #-- Cristina Pihuave
 
 
@@ -140,7 +144,15 @@ def p_declaracion_tipo_explicito(p):
     """
     declaracion : tipo IDENTIFIER ASSIGN expresion SEMICOLON
     """
-    pass
+    tabla_simbolos[p[2]] = p[1]
+    registrar_variable(
+        p[2],
+        p[1]
+    )
+
+    tipo_valor = obtener_tipo(p[4])
+
+    verificar_asignacion(p[2], tipo_valor)
 #-- Dhamar Patiño
 
 
@@ -153,7 +165,28 @@ def p_declaracion_inferencia_inmutable(p):
                 | FINAL tipo_opcional IDENTIFIER ASSIGN expresion SEMICOLON
                 | CONST tipo_opcional IDENTIFIER ASSIGN expresion SEMICOLON
     """
-    pass
+    if p.slice[1].type == "VAR":
+
+        tipo = obtener_tipo(p[4])
+
+        registrar_variable(
+            p[2],
+            tipo
+        )
+
+    else:
+
+        registrar_variable(
+            p[3],
+            p[2]
+        )
+
+        tipo_valor = obtener_tipo(p[5])
+
+        verificar_asignacion(
+            p[3],
+            tipo_valor
+        )
 #-- Cristina Pihuave
 
 
@@ -173,7 +206,10 @@ def p_asignacion(p):
                | acceso_indice TIMES_ASSIGN expresion SEMICOLON
                | acceso_indice DIVIDE_ASSIGN expresion SEMICOLON
     """
-    pass
+    
+    verificar_variable(p[1])
+    tipo_valor = obtener_tipo(p[3])
+    verificar_asignacion(p[1], tipo_valor)
 #-- Dhamar Patiño
 
 
@@ -186,7 +222,11 @@ def p_expresion_aditiva(p):
                       | expresion_aditiva MINUS expresion_multiplicativa
                       | expresion_multiplicativa
     """
-    pass
+    if len(p) == 2:
+        p[0]=p[1]
+
+    else:
+        p[0]=p[1]
 
 
 def p_expresion_multiplicativa(p):
@@ -196,7 +236,11 @@ def p_expresion_multiplicativa(p):
                              | expresion_multiplicativa MODULO expresion_unaria
                              | expresion_unaria
     """
-    pass
+    if len(p)==2:
+        p[0]=p[1]
+
+    else:
+        p[0]=p[1]
 #-- Cristina Pihuave
 
 
@@ -207,7 +251,7 @@ def p_expresion(p):
     """
     expresion : expresion_or
     """
-    pass
+    p[0] = p[1]
 
 
 def p_expresion_or(p):
@@ -215,7 +259,11 @@ def p_expresion_or(p):
     expresion_or : expresion_or OR expresion_and
                  | expresion_and
     """
-    pass
+    if len(p)==2:
+        p[0]=p[1]
+
+    else:
+        p[0]=p[1]
 
 
 def p_expresion_and(p):
@@ -223,7 +271,11 @@ def p_expresion_and(p):
     expresion_and : expresion_and AND expresion_igualdad
                   | expresion_igualdad
     """
-    pass
+    if len(p)==2:
+        p[0]=p[1]
+
+    else:
+        p[0]=p[1]
 
 
 def p_expresion_igualdad(p):
@@ -232,7 +284,11 @@ def p_expresion_igualdad(p):
                        | expresion_relacional EQUALS expresion_relacional
                        | expresion_relacional NOT_EQUALS expresion_relacional
     """
-    pass
+    if len(p)==2:
+        p[0]=p[1]
+
+    else:
+        p[0]=p[1]
 
 
 def p_expresion_relacional(p):
@@ -243,7 +299,11 @@ def p_expresion_relacional(p):
                          | expresion_aditiva GREATER_EQUAL expresion_aditiva
                          | expresion_aditiva LESS_EQUAL expresion_aditiva
     """
-    pass
+    if len(p)==2:
+        p[0]=p[1]
+
+    else:
+        p[0]=p[1]
 
 
 def p_expresion_unaria(p):
@@ -252,7 +312,11 @@ def p_expresion_unaria(p):
                      | MINUS expresion_unaria
                      | factor
     """
-    pass
+    if len(p)==2:
+        p[0]=p[1]
+
+    else:
+        p[0]=p[1]
 
 
 def p_factor(p):
@@ -271,7 +335,19 @@ def p_factor(p):
            | mapa
            | LPAREN expresion RPAREN
     """
-    pass
+    
+    
+    if p.slice[1].type == "IDENTIFIER":
+        verificar_variable(p[1])
+
+    if p.slice[1].type == "TRUE":
+        p[0] = True
+
+    elif p.slice[1].type == "FALSE":
+        p[0] = False
+
+    else:
+        p[0] = p[1]
 #-- Dhamar Patiño
 
 
@@ -314,7 +390,14 @@ def p_inicializacion_for(p):
                        | VAR IDENTIFIER ASSIGN expresion SEMICOLON
                        | IDENTIFIER ASSIGN expresion SEMICOLON
     """
-    pass
+    if p.slice[1].type == "IDENTIFIER":
+        verificar_variable(p[1])
+
+    else:
+        registrar_variable(
+            p[2],
+            p[1]
+        )
 
 
 def p_actualizacion_for(p):
@@ -397,8 +480,9 @@ def p_par_mapa(p):
 def p_acceso_indice(p):
     """
     acceso_indice : IDENTIFIER LCORCHETE expresion RCORCHETE
+                | IDENTIFIER LCORCHETE expresion RCORCHETE NOT
     """
-    pass
+    p[0] = p[1]
 #-- Cristina Pihuave
 
 
@@ -443,7 +527,10 @@ def p_parametro(p):
     """
     parametro : tipo IDENTIFIER
     """
-    pass
+    registrar_variable(
+        p[2],
+        p[1]
+    )
 
 
 def p_parametros(p):
@@ -470,7 +557,7 @@ def p_llamada_funcion(p):
     """
     llamada_funcion : IDENTIFIER LPAREN argumentos_opcionales RPAREN
     """
-    pass
+    p[0] = p[1]
 
 
 def p_argumentos_opcionales(p):
@@ -497,7 +584,7 @@ def p_llamada_metodo(p):
     """
     llamada_metodo : IDENTIFIER PUNTO IDENTIFIER LPAREN argumentos_opcionales RPAREN
     """
-    pass
+    p[0] = p[1]
 #-- Cristina Pihuave
 
 
@@ -523,7 +610,7 @@ def p_ingreso_datos(p):
     ingreso_datos : STDIN PUNTO READ_LINE_SYNC LPAREN RPAREN
                   | STDIN PUNTO READ_LINE_SYNC LPAREN RPAREN NOT
     """
-    pass
+    p[0] = ""
 #-- Dhamar Patiño
 
 
