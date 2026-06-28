@@ -1,7 +1,8 @@
 import ply.yacc as yacc
 from src.lexer.lexer import tokens
 from src.semantic.semantic import (tabla_simbolos, errores_semanticos,
-    registrar_variable, verificar_variable, obtener_tipo, verificar_asignacion
+    registrar_variable, verificar_variable, obtener_tipo, verificar_asignacion,
+    registrar_funcion, tabla_funciones
 )
 
 errores_sintacticos = []
@@ -422,7 +423,7 @@ def p_lista(p):
     """
     lista : LCORCHETE elementos_lista_opcionales RCORCHETE
     """
-    pass
+    p[0] = []
 
 
 def p_elementos_lista_opcionales(p):
@@ -450,7 +451,7 @@ def p_mapa(p):
     """
     mapa : LLLAVE pares_mapa_opcionales RLLAVE
     """
-    pass
+    p[0] = {}
 
 
 def p_pares_mapa_opcionales(p):
@@ -497,7 +498,7 @@ def p_funcion_clasica(p):
     funcion_clasica : tipo IDENTIFIER LPAREN parametros_opcionales RPAREN bloque
                     | VOID IDENTIFIER LPAREN parametros_opcionales RPAREN bloque
     """
-    pass
+    registrar_funcion(p[2], p[1])
 
 
 def p_retorno(p):
@@ -516,7 +517,7 @@ def p_funcion_flecha(p):
     """
     funcion_flecha : tipo IDENTIFIER LPAREN parametros_opcionales RPAREN ARROW expresion SEMICOLON
     """
-    pass
+    registrar_funcion(p[2], p[1])
 #-- Cristina Pihuave
 
 
