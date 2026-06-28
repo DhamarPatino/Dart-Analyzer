@@ -125,7 +125,9 @@ def p_tipo_mapa(p):
     """
     tipo : MAP_TYPE LESS_THAN tipo COMA tipo GREATER_THAN
     """
+    # --Dhamar Patiño
     p[0] = "Map"
+    # --Dhamar Patiño
 
 
 def p_tipo_opcional(p):
@@ -133,8 +135,10 @@ def p_tipo_opcional(p):
     tipo_opcional : tipo
                   | vacio
     """
+    # --Dhamar Patiño
     if len(p)==2:
         p[0]=p[1]
+    # --Dhamar Patiño
 #-- Cristina Pihuave
 
 
@@ -166,28 +170,25 @@ def p_declaracion_inferencia_inmutable(p):
                 | FINAL tipo_opcional IDENTIFIER ASSIGN expresion SEMICOLON
                 | CONST tipo_opcional IDENTIFIER ASSIGN expresion SEMICOLON
     """
+    # --Dhamar Patiño
     if p.slice[1].type == "VAR":
-
         tipo = obtener_tipo(p[4])
-
         registrar_variable(
             p[2],
             tipo
         )
 
     else:
-
         registrar_variable(
             p[3],
             p[2]
         )
-
         tipo_valor = obtener_tipo(p[5])
-
         verificar_asignacion(
             p[3],
             tipo_valor
         )
+    # --Dhamar Patiño
 #-- Cristina Pihuave
 
 
@@ -223,11 +224,13 @@ def p_expresion_aditiva(p):
                       | expresion_aditiva MINUS expresion_multiplicativa
                       | expresion_multiplicativa
     """
+    # --Dhamar Patiño
     if len(p) == 2:
         p[0]=p[1]
 
     else:
         p[0]=p[1]
+    # --Dhamar Patiño
 
 
 def p_expresion_multiplicativa(p):
@@ -237,11 +240,13 @@ def p_expresion_multiplicativa(p):
                              | expresion_multiplicativa MODULO expresion_unaria
                              | expresion_unaria
     """
+    # --Dhamar Patiño
     if len(p)==2:
         p[0]=p[1]
 
     else:
         p[0]=p[1]
+    # --Dhamar Patiño
 #-- Cristina Pihuave
 
 
@@ -391,6 +396,7 @@ def p_inicializacion_for(p):
                        | VAR IDENTIFIER ASSIGN expresion SEMICOLON
                        | IDENTIFIER ASSIGN expresion SEMICOLON
     """
+    # --Dhamar Patiño
     if p.slice[1].type == "IDENTIFIER":
         verificar_variable(p[1])
 
@@ -399,6 +405,7 @@ def p_inicializacion_for(p):
             p[2],
             p[1]
         )
+    # --Dhamar Patiño
 
 
 def p_actualizacion_for(p):
@@ -451,7 +458,9 @@ def p_mapa(p):
     """
     mapa : LLLAVE pares_mapa_opcionales RLLAVE
     """
+    # --Dhamar Patiño
     p[0] = {}
+    # --Dhamar Patiño
 
 
 def p_pares_mapa_opcionales(p):
@@ -483,7 +492,9 @@ def p_acceso_indice(p):
     acceso_indice : IDENTIFIER LCORCHETE expresion RCORCHETE
                 | IDENTIFIER LCORCHETE expresion RCORCHETE NOT
     """
+    # --Dhamar Patiño
     p[0] = p[1]
+    # --Dhamar Patiño
 #-- Cristina Pihuave
 
 
@@ -517,7 +528,9 @@ def p_funcion_flecha(p):
     """
     funcion_flecha : tipo IDENTIFIER LPAREN parametros_opcionales RPAREN ARROW expresion SEMICOLON
     """
+    # --Dhamar Patiño
     registrar_funcion(p[2], p[1])
+    # --Dhamar Patiño
 #-- Cristina Pihuave
 
 
@@ -585,7 +598,9 @@ def p_llamada_metodo(p):
     """
     llamada_metodo : IDENTIFIER PUNTO IDENTIFIER LPAREN argumentos_opcionales RPAREN
     """
+    # --Dhamar Patiño
     p[0] = p[1]
+    # --Dhamar Patiño
 #-- Cristina Pihuave
 
 

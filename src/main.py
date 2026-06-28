@@ -283,3 +283,4 @@ print(
     f"Log semántico generado: "
     f"{ruta_log_semantico}"
 )
+# -- Dhamar Patiño
