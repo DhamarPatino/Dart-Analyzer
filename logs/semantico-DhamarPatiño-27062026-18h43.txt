@@ -1,0 +1,5 @@
+Error semántico: No se puede asignar un int a una variable bool.
+Error semántico: No se puede asignar un None a una variable List.
+Error semántico: No se puede asignar un None a una variable Map.
+Error semántico: No se puede asignar un String a una variable double.
+Error semántico: No se puede asignar un String a una variable int.

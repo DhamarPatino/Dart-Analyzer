@@ -1,0 +1,1 @@
+Error semántico: No se puede asignar un None a una variable Map.

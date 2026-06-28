@@ -1,0 +1,2 @@
+Error semántico: Variable o función 'nombre' no declarada.
+Error semántico: No se puede asignar un String a una variable int.
