@@ -1,9 +1,21 @@
 import ply.yacc as yacc
+
 from src.lexer.lexer import tokens
-from src.semantic.semantic import (tabla_simbolos, errores_semanticos,
-    registrar_variable, verificar_variable, obtener_tipo, verificar_asignacion,
-    registrar_funcion, tabla_funciones
+
+from src.semantic.semantic import (
+    registrar_variable,
+    verificar_variable,
+    obtener_tipo,
+    obtener_tipo_elemento,
+    verificar_asignacion,
+    verificar_asignacion_tipos,
+    verificar_operacion,
+    crear_resultado_tipo,
+    iniciar_funcion,
+    finalizar_funcion,
+    verificar_retorno
 )
+
 
 errores_sintacticos = []
 
@@ -75,7 +87,8 @@ def p_sentencia(p):
     """
     pass
 #-- Dhamar Patiño
-#--Cristina Pihuave
+
+
 # RECUPERACIÓN DE ERRORES SINTÁCTICOS
 
 #-- Cristina Pihuave
@@ -94,10 +107,7 @@ def p_sentencia_error(p):
 #-- Cristina Pihuave
 
 
-# DECLARACIÓN DE VARIABLES
-
-
-# TIPOS DE DATOS PRIMITIVOS Y LIST
+# TIPOS DE DATOS
 
 #-- Dhamar Patiño
 def p_tipo_primitivo(p):
@@ -114,20 +124,16 @@ def p_tipo_lista(p):
     """
     tipo : LIST_TYPE LESS_THAN tipo GREATER_THAN
     """
-    p[0] = "List"
+    p[0] = f"List<{p[3]}>"
 #-- Dhamar Patiño
 
-
-# TIPO DE DATO MAP Y TIPO OPCIONAL
 
 #-- Cristina Pihuave
 def p_tipo_mapa(p):
     """
     tipo : MAP_TYPE LESS_THAN tipo COMA tipo GREATER_THAN
     """
-    # --Dhamar Patiño
-    p[0] = "Map"
-    # --Dhamar Patiño
+    p[0] = f"Map<{p[3]},{p[5]}>"
 
 
 def p_tipo_opcional(p):
@@ -135,33 +141,33 @@ def p_tipo_opcional(p):
     tipo_opcional : tipo
                   | vacio
     """
-    # --Dhamar Patiño
-    if len(p)==2:
-        p[0]=p[1]
-    # --Dhamar Patiño
+    p[0] = p[1]
 #-- Cristina Pihuave
 
 
-# DECLARACIÓN CON TIPO EXPLÍCITO
+# DECLARACIÓN DE VARIABLES
 
 #-- Dhamar Patiño
 def p_declaracion_tipo_explicito(p):
     """
     declaracion : tipo IDENTIFIER ASSIGN expresion SEMICOLON
     """
-    tabla_simbolos[p[2]] = p[1]
+
     registrar_variable(
         p[2],
         p[1]
     )
 
-    tipo_valor = obtener_tipo(p[4])
+    tipo_valor = obtener_tipo(
+        p[4]
+    )
 
-    verificar_asignacion(p[2], tipo_valor)
+    verificar_asignacion(
+        p[2],
+        tipo_valor
+    )
 #-- Dhamar Patiño
 
-
-# DECLARACIÓN CON VAR, FINAL Y CONST
 
 #-- Cristina Pihuave
 def p_declaracion_inferencia_inmutable(p):
@@ -170,25 +176,45 @@ def p_declaracion_inferencia_inmutable(p):
                 | FINAL tipo_opcional IDENTIFIER ASSIGN expresion SEMICOLON
                 | CONST tipo_opcional IDENTIFIER ASSIGN expresion SEMICOLON
     """
-    # --Dhamar Patiño
+
+    # var toma el tipo del valor
     if p.slice[1].type == "VAR":
-        tipo = obtener_tipo(p[4])
+
+        tipo = obtener_tipo(
+            p[4]
+        )
+
         registrar_variable(
             p[2],
             tipo
         )
 
+        return
+
+    tipo_valor = obtener_tipo(
+        p[5]
+    )
+
+    # final o const sin tipo explícito
+    if p[2] is None:
+
+        registrar_variable(
+            p[3],
+            tipo_valor
+        )
+
+    # final o const con tipo explícito
     else:
+
         registrar_variable(
             p[3],
             p[2]
         )
-        tipo_valor = obtener_tipo(p[5])
+
         verificar_asignacion(
             p[3],
             tipo_valor
         )
-    # --Dhamar Patiño
 #-- Cristina Pihuave
 
 
@@ -208,10 +234,71 @@ def p_asignacion(p):
                | acceso_indice TIMES_ASSIGN expresion SEMICOLON
                | acceso_indice DIVIDE_ASSIGN expresion SEMICOLON
     """
-    
-    verificar_variable(p[1])
-    tipo_valor = obtener_tipo(p[3])
-    verificar_asignacion(p[1], tipo_valor)
+
+    es_acceso = (
+        p.slice[1].type == "acceso_indice"
+    )
+
+    if not es_acceso:
+        verificar_variable(
+            p[1]
+        )
+
+    # Regla 2: asignación normal
+    if p.slice[2].type == "ASSIGN":
+
+        tipo_valor = obtener_tipo(
+            p[3]
+        )
+
+        if es_acceso:
+
+            verificar_asignacion_tipos(
+                obtener_tipo(p[1]),
+                tipo_valor
+            )
+
+        else:
+
+            verificar_asignacion(
+                p[1],
+                tipo_valor
+            )
+
+        return
+
+    operadores_compuestos = {
+        "PLUS_ASSIGN": "+",
+        "MINUS_ASSIGN": "-",
+        "TIMES_ASSIGN": "*",
+        "DIVIDE_ASSIGN": "/"
+    }
+
+    operador = operadores_compuestos[
+        p.slice[2].type
+    ]
+
+    # Regla 3: revisar la operación
+    resultado = verificar_operacion(
+        p[1],
+        operador,
+        p[3]
+    )
+
+    # Regla 2: revisar el resultado asignado
+    if es_acceso:
+
+        verificar_asignacion_tipos(
+            obtener_tipo(p[1]),
+            obtener_tipo(resultado)
+        )
+
+    else:
+
+        verificar_asignacion(
+            p[1],
+            obtener_tipo(resultado)
+        )
 #-- Dhamar Patiño
 
 
@@ -224,13 +311,19 @@ def p_expresion_aditiva(p):
                       | expresion_aditiva MINUS expresion_multiplicativa
                       | expresion_multiplicativa
     """
-    # --Dhamar Patiño
+
     if len(p) == 2:
-        p[0]=p[1]
+
+        p[0] = p[1]
 
     else:
-        p[0]=p[1]
-    # --Dhamar Patiño
+
+        # Regla 3: probando suma o resta
+        p[0] = verificar_operacion(
+            p[1],
+            p[2],
+            p[3]
+        )
 
 
 def p_expresion_multiplicativa(p):
@@ -240,13 +333,19 @@ def p_expresion_multiplicativa(p):
                              | expresion_multiplicativa MODULO expresion_unaria
                              | expresion_unaria
     """
-    # --Dhamar Patiño
-    if len(p)==2:
-        p[0]=p[1]
+
+    if len(p) == 2:
+
+        p[0] = p[1]
 
     else:
-        p[0]=p[1]
-    # --Dhamar Patiño
+
+        # Regla 3: probando *, / o %
+        p[0] = verificar_operacion(
+            p[1],
+            p[2],
+            p[3]
+        )
 #-- Cristina Pihuave
 
 
@@ -265,11 +364,16 @@ def p_expresion_or(p):
     expresion_or : expresion_or OR expresion_and
                  | expresion_and
     """
-    if len(p)==2:
-        p[0]=p[1]
+
+    if len(p) == 2:
+
+        p[0] = p[1]
 
     else:
-        p[0]=p[1]
+
+        p[0] = crear_resultado_tipo(
+            "bool"
+        )
 
 
 def p_expresion_and(p):
@@ -277,11 +381,16 @@ def p_expresion_and(p):
     expresion_and : expresion_and AND expresion_igualdad
                   | expresion_igualdad
     """
-    if len(p)==2:
-        p[0]=p[1]
+
+    if len(p) == 2:
+
+        p[0] = p[1]
 
     else:
-        p[0]=p[1]
+
+        p[0] = crear_resultado_tipo(
+            "bool"
+        )
 
 
 def p_expresion_igualdad(p):
@@ -290,11 +399,16 @@ def p_expresion_igualdad(p):
                        | expresion_relacional EQUALS expresion_relacional
                        | expresion_relacional NOT_EQUALS expresion_relacional
     """
-    if len(p)==2:
-        p[0]=p[1]
+
+    if len(p) == 2:
+
+        p[0] = p[1]
 
     else:
-        p[0]=p[1]
+
+        p[0] = crear_resultado_tipo(
+            "bool"
+        )
 
 
 def p_expresion_relacional(p):
@@ -305,11 +419,16 @@ def p_expresion_relacional(p):
                          | expresion_aditiva GREATER_EQUAL expresion_aditiva
                          | expresion_aditiva LESS_EQUAL expresion_aditiva
     """
-    if len(p)==2:
-        p[0]=p[1]
+
+    if len(p) == 2:
+
+        p[0] = p[1]
 
     else:
-        p[0]=p[1]
+
+        p[0] = crear_resultado_tipo(
+            "bool"
+        )
 
 
 def p_expresion_unaria(p):
@@ -318,11 +437,15 @@ def p_expresion_unaria(p):
                      | MINUS expresion_unaria
                      | factor
     """
-    if len(p)==2:
-        p[0]=p[1]
+
+    if len(p) == 2:
+
+        p[0] = p[1]
 
     else:
-        p[0]=p[1]
+
+        # Solo conserva el tipo del valor
+        p[0] = p[2]
 
 
 def p_factor(p):
@@ -341,26 +464,35 @@ def p_factor(p):
            | mapa
            | LPAREN expresion RPAREN
     """
-    
-    
-    if p.slice[1].type == "IDENTIFIER":
-        verificar_variable(p[1])
 
-    if p.slice[1].type == "TRUE":
+    if p.slice[1].type == "IDENTIFIER":
+
+        # Regla 1
+        verificar_variable(
+            p[1]
+        )
+
+        p[0] = p[1]
+
+    elif p.slice[1].type == "TRUE":
+
         p[0] = True
 
     elif p.slice[1].type == "FALSE":
+
         p[0] = False
 
+    elif p.slice[1].type == "LPAREN":
+
+        p[0] = p[2]
+
     else:
+
         p[0] = p[1]
 #-- Dhamar Patiño
 
 
 # ESTRUCTURAS DE CONTROL
-
-
-# ESTRUCTURA IF-ELSE
 
 #-- Dhamar Patiño
 def p_bloque(p):
@@ -396,16 +528,39 @@ def p_inicializacion_for(p):
                        | VAR IDENTIFIER ASSIGN expresion SEMICOLON
                        | IDENTIFIER ASSIGN expresion SEMICOLON
     """
-    # --Dhamar Patiño
-    if p.slice[1].type == "IDENTIFIER":
-        verificar_variable(p[1])
 
+    # Variable ya declarada
+    if p.slice[1].type == "IDENTIFIER":
+
+        verificar_variable(
+            p[1]
+        )
+
+        verificar_asignacion(
+            p[1],
+            obtener_tipo(p[3])
+        )
+
+    # Declaración con var
+    elif p.slice[1].type == "VAR":
+
+        registrar_variable(
+            p[2],
+            obtener_tipo(p[4])
+        )
+
+    # Declaración con tipo
     else:
+
         registrar_variable(
             p[2],
             p[1]
         )
-    # --Dhamar Patiño
+
+        verificar_asignacion(
+            p[2],
+            obtener_tipo(p[4])
+        )
 
 
 def p_actualizacion_for(p):
@@ -416,14 +571,43 @@ def p_actualizacion_for(p):
                       | IDENTIFIER TIMES_ASSIGN expresion
                       | IDENTIFIER DIVIDE_ASSIGN expresion
     """
-    pass
+
+    # Regla 1
+    verificar_variable(
+        p[1]
+    )
+
+    # ++ solo se reconoce sintácticamente
+    if p.slice[2].type == "INCREMENT":
+        return
+
+    operadores_compuestos = {
+        "PLUS_ASSIGN": "+",
+        "MINUS_ASSIGN": "-",
+        "TIMES_ASSIGN": "*",
+        "DIVIDE_ASSIGN": "/"
+    }
+
+    operador = operadores_compuestos[
+        p.slice[2].type
+    ]
+
+    # Regla 3
+    resultado = verificar_operacion(
+        p[1],
+        operador,
+        p[3]
+    )
+
+    # Regla 2
+    verificar_asignacion(
+        p[1],
+        obtener_tipo(resultado)
+    )
 #-- Cristina Pihuave
 
 
-# ESTRUCTURAS DE DATOS
-
-
-# ESTRUCTURA DE DATOS LIST
+# LISTAS
 
 #-- Dhamar Patiño
 def p_lista(p):
@@ -451,16 +635,14 @@ def p_elementos_lista(p):
 #-- Dhamar Patiño
 
 
-# ESTRUCTURA DE DATOS MAP
+# MAPAS
 
 #-- Cristina Pihuave
 def p_mapa(p):
     """
     mapa : LLLAVE pares_mapa_opcionales RLLAVE
     """
-    # --Dhamar Patiño
     p[0] = {}
-    # --Dhamar Patiño
 
 
 def p_pares_mapa_opcionales(p):
@@ -490,26 +672,43 @@ def p_par_mapa(p):
 def p_acceso_indice(p):
     """
     acceso_indice : IDENTIFIER LCORCHETE expresion RCORCHETE
-                | IDENTIFIER LCORCHETE expresion RCORCHETE NOT
+                  | IDENTIFIER LCORCHETE expresion RCORCHETE NOT
     """
-    # --Dhamar Patiño
-    p[0] = p[1]
-    # --Dhamar Patiño
+
+    # Regla 1
+    verificar_variable(
+        p[1]
+    )
+
+    p[0] = crear_resultado_tipo(
+        obtener_tipo_elemento(p[1])
+    )
 #-- Cristina Pihuave
 
 
-# DECLARACIONES DE FUNCIONES
-
-
-# FUNCIÓN CLÁSICA CON RETORNO O VOID
+# FUNCIONES CLÁSICAS
 
 #-- Dhamar Patiño
+def p_encabezado_funcion_clasica(p):
+    """
+    encabezado_funcion_clasica : tipo IDENTIFIER LPAREN parametros_opcionales RPAREN LLLAVE
+                               | VOID IDENTIFIER LPAREN parametros_opcionales RPAREN LLLAVE
+    """
+
+    # Regla 4 de Cristina:
+    # guardar el tipo antes de revisar el cuerpo
+    iniciar_funcion(
+        p[2],
+        p[1]
+    )
+
+
 def p_funcion_clasica(p):
     """
-    funcion_clasica : tipo IDENTIFIER LPAREN parametros_opcionales RPAREN bloque
-                    | VOID IDENTIFIER LPAREN parametros_opcionales RPAREN bloque
+    funcion_clasica : encabezado_funcion_clasica lista_sentencias_opcional RLLAVE
     """
-    registrar_funcion(p[2], p[1])
+
+    finalizar_funcion()
 
 
 def p_retorno(p):
@@ -517,20 +716,51 @@ def p_retorno(p):
     retorno : RETURN expresion SEMICOLON
             | RETURN SEMICOLON
     """
-    pass
+
+    # Regla 4: return con valor
+    if len(p) == 4:
+
+        verificar_retorno(
+            valor=p[2],
+            tiene_valor=True
+        )
+
+    # Regla 4: return sin valor
+    else:
+
+        verificar_retorno(
+            tiene_valor=False
+        )
 #-- Dhamar Patiño
 
 
 # FUNCIÓN FLECHA
 
 #-- Cristina Pihuave
+def p_encabezado_funcion_flecha(p):
+    """
+    encabezado_funcion_flecha : tipo IDENTIFIER LPAREN parametros_opcionales RPAREN ARROW
+    """
+
+    # Regla 4: guardar el tipo de retorno
+    iniciar_funcion(
+        p[2],
+        p[1]
+    )
+
+
 def p_funcion_flecha(p):
     """
-    funcion_flecha : tipo IDENTIFIER LPAREN parametros_opcionales RPAREN ARROW expresion SEMICOLON
+    funcion_flecha : encabezado_funcion_flecha expresion SEMICOLON
     """
-    # --Dhamar Patiño
-    registrar_funcion(p[2], p[1])
-    # --Dhamar Patiño
+
+    # Regla 4: la expresión es el retorno
+    verificar_retorno(
+        valor=p[2],
+        tiene_valor=True
+    )
+
+    finalizar_funcion()
 #-- Cristina Pihuave
 
 
@@ -541,6 +771,7 @@ def p_parametro(p):
     """
     parametro : tipo IDENTIFIER
     """
+
     registrar_variable(
         p[2],
         p[1]
@@ -564,13 +795,19 @@ def p_parametros_opcionales(p):
 #-- Dhamar Patiño
 
 
-# LLAMADAS DE FUNCIONES Y ARGUMENTOS
+# LLAMADAS DE FUNCIONES
 
 #-- Dhamar Patiño
 def p_llamada_funcion(p):
     """
     llamada_funcion : IDENTIFIER LPAREN argumentos_opcionales RPAREN
     """
+
+    # Regla 1
+    verificar_variable(
+        p[1]
+    )
+
     p[0] = p[1]
 
 
@@ -598,16 +835,19 @@ def p_llamada_metodo(p):
     """
     llamada_metodo : IDENTIFIER PUNTO IDENTIFIER LPAREN argumentos_opcionales RPAREN
     """
-    # --Dhamar Patiño
-    p[0] = p[1]
-    # --Dhamar Patiño
+
+    # Regla 1
+    verificar_variable(
+        p[1]
+    )
+
+    p[0] = crear_resultado_tipo(
+        None
+    )
 #-- Cristina Pihuave
 
 
-# IMPRESIÓN Y SOLICITUD DE DATOS
-
-
-# IMPRESIÓN
+# IMPRESIÓN Y ENTRADA DE DATOS
 
 #-- Dhamar Patiño
 def p_impresion(p):
@@ -615,22 +855,21 @@ def p_impresion(p):
     impresion : PRINT LPAREN expresion RPAREN SEMICOLON
     """
     pass
-#-- Dhamar Patiño
 
 
-# INGRESO DE DATOS
-
-#-- Dhamar Patiño
 def p_ingreso_datos(p):
     """
     ingreso_datos : STDIN PUNTO READ_LINE_SYNC LPAREN RPAREN
                   | STDIN PUNTO READ_LINE_SYNC LPAREN RPAREN NOT
     """
-    p[0] = ""
+
+    p[0] = crear_resultado_tipo(
+        "String"
+    )
 #-- Dhamar Patiño
 
 
-# IMPORTACIÓN DE LA BIBLIOTECA
+# IMPORTACIONES
 
 #-- Dhamar Patiño
 def p_importacion(p):
@@ -648,14 +887,18 @@ def p_vacio(p):
     """
     vacio :
     """
-    pass
+    p[0] = None
 #-- Cristina Pihuave
 
 
-# MANEJO DE ERRORES SINTÁCTICOS
+# ERRORES SINTÁCTICOS
 
 #-- Cristina Pihuave
-def calcular_columna(lexdata, lexpos):
+def calcular_columna(
+    lexdata,
+    lexpos
+):
+
     ultimo_salto = lexdata.rfind(
         "\n",
         0,
@@ -666,19 +909,23 @@ def calcular_columna(lexdata, lexpos):
 
 
 def p_error(p):
+
     if p:
+
         columna = calcular_columna(
             p.lexer.lexdata,
             p.lexpos
         )
 
         if p.type == "RLLAVE":
+
             sugerencia = (
                 "Revise si falta un punto y coma antes de cerrar "
                 "el bloque o si las llaves están balanceadas."
             )
 
         elif p.type == "SEMICOLON":
+
             sugerencia = (
                 "Revise si falta una expresión o un valor antes "
                 "del punto y coma."
@@ -688,18 +935,21 @@ def p_error(p):
             "RPAREN",
             "RCORCHETE"
         }:
+
             sugerencia = (
                 "Revise los paréntesis, los corchetes y los "
                 "elementos de la expresión."
             )
 
         elif p.type == "IMPORT":
+
             sugerencia = (
                 "Las importaciones deben escribirse al inicio "
                 "del archivo, antes de las declaraciones."
             )
 
         else:
+
             sugerencia = (
                 "Revise la instrucción anterior y la posición "
                 "de este token."
@@ -712,6 +962,7 @@ def p_error(p):
         )
 
     else:
+
         mensaje = (
             "Error sintáctico al final del archivo: "
             "la última instrucción o bloque está incompleto. "
@@ -719,11 +970,14 @@ def p_error(p):
         )
 
     print(mensaje)
-    errores_sintacticos.append(mensaje)
+
+    errores_sintacticos.append(
+        mensaje
+    )
 #-- Cristina Pihuave
 
 
-# CONSTRUCCIÓN DEL ANALIZADOR SINTÁCTICO
+# CONSTRUCCIÓN DEL PARSER
 
 #-- Dhamar Patiño
 parser = yacc.yacc(

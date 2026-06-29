@@ -1,0 +1,9 @@
+Error semántico: La función 'obtenerAsistenciaIncorrecta' declara un retorno de tipo 'int', pero retorna un valor de tipo 'String'.
+Error semántico: La función 'verificarAprobacionIncorrecta' declara un retorno de tipo 'bool', pero retorna un valor de tipo 'double'.
+Error semántico: La función 'mostrarNombreIncorrecto' es de tipo void y no puede retornar un valor.
+Error semántico: La función 'obtenerCiudadIncorrecta' declara un retorno de tipo 'String' y no puede usar 'return;' sin un valor.
+Error semántico: La función 'obtenerNotaMinimaIncorrecta' declara un retorno de tipo 'int', pero retorna un valor de tipo 'double'.
+Error semántico: Operación incompatible. No se puede aplicar el operador '+' entre un valor de tipo 'double' y un valor de tipo 'String'.
+Error semántico: Operación incompatible. No se puede aplicar el operador '*' entre un valor de tipo 'int' y un valor de tipo 'bool'.
+Error semántico: Operación incompatible. No se puede aplicar el operador '-' entre un valor de tipo 'String' y un valor de tipo 'String'.
+Error semántico: Operación incompatible. No se puede aplicar el operador '+' entre un valor de tipo 'String' y un valor de tipo 'int'.

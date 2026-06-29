@@ -3,8 +3,8 @@ from datetime import datetime
 
 from src.lexer.lexer import lexer
 from src.parser.parser import parser, errores_sintacticos
-from src.semantic.semantic import (tabla_simbolos, errores_semanticos,
-    verificar_variable, verificar_asignacion )
+from src.semantic.semantic import (tabla_simbolos, tabla_funciones, errores_semanticos,
+pila_funciones, verificar_variable, verificar_asignacion, verificar_retorno, crear_resultado_tipo)
 
 
 #-- Dhamar Patiño
@@ -235,6 +235,8 @@ print(
 # ANÁLISIS SEMÁNTICO
 
 tabla_simbolos.clear()
+tabla_funciones.clear()
+pila_funciones.clear()
 errores_semanticos.clear()
 
 lexer.lineno = 1
