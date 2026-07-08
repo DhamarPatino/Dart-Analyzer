@@ -48,8 +48,9 @@ python -m src.gui.app
 
 Desde la interfaz se puede escribir o pegar código Dart en el editor, o cargar
 uno de los algoritmos de prueba de la carpeta `tests/`, y ejecutar el análisis
-léxico, sintáctico y semántico. Los resultados (tokens, árbol sintáctico,
-errores con línea y columna, y logs) se muestran en el panel derecho.
+léxico, sintáctico y semántico. Los resultados se muestran en el panel derecho:
+tokens, árbol sintáctico, errores (léxicos y sintácticos con línea y columna;
+semánticos con línea) y logs.
 
 Modo consola (interactivo, recorre los archivos de `tests/`):
 
