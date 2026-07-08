@@ -65,8 +65,6 @@ tokens = (
     "MINUS_ASSIGN",
     "TIMES_ASSIGN",
     "DIVIDE_ASSIGN",
-    "COMMENT_SINGLE",
-    "COMMENT_MULTI",
     #-- Dhamar Patiño
 
     #-- Cristina Pihuave
@@ -204,8 +202,35 @@ def t_COMMENT_MULTI(t):
     r"/\*[\s\S]*?\*/"
     t.lexer.lineno += t.value.count("\n")
     pass
+#-- Dhamar Patiño
 
 
+#-- Cristina Pihuave
+# Comentario multilínea sin cerrar (falta el */).
+def t_COMMENT_MULTI_SIN_CERRAR(t):
+    r"/\*[\s\S]*"
+
+    columna = calculate_column(
+        t.lexer.lexdata,
+        t.lexpos
+    )
+
+    message = (
+        f"Error léxico en la línea {t.lexer.lineno}, "
+        f"columna {columna}: comentario multilínea sin cerrar, "
+        "falta '*/'."
+    )
+
+    register_error(
+        t.lexer,
+        message
+    )
+
+    t.lexer.lineno += t.value.count("\n")
+#-- Cristina Pihuave
+
+
+#-- Dhamar Patiño
 # Actualizar el contador de líneas.
 def t_newline(t):
     r"\n+"
@@ -303,4 +328,34 @@ lexer = lex.lex()
 
 #-- Cristina Pihuave
 lexer.pending_errors = []
+
+# Recuerda el token anterior, para mensajes de error sintáctico más claros.
+_token_original = lexer.token
+
+
+def _token_con_seguimiento():
+    token = _token_original()
+
+    if token is not None:
+        lexer.token_anterior = lexer.token_actual
+        lexer.token_actual = token
+
+    return token
+
+
+lexer.token = _token_con_seguimiento
+lexer.token_actual = None
+lexer.token_anterior = None
+
+# Reinicia el seguimiento cada vez que se carga código nuevo.
+_input_original = lexer.input
+
+
+def _input_con_reinicio(datos):
+    lexer.token_actual = None
+    lexer.token_anterior = None
+    return _input_original(datos)
+
+
+lexer.input = _input_con_reinicio
 #-- Cristina Pihuave

@@ -4,6 +4,16 @@ tabla_funciones = {}
 pila_funciones = []
 
 
+# Agrega el número de línea al mensaje, cuando el parser lo envía.
+def _registrar_error_semantico(mensaje, linea=None):
+    if linea is not None:
+        errores_semanticos.append(
+            f"Error semántico en la línea {linea}: {mensaje}"
+        )
+    else:
+        errores_semanticos.append(f"Error semántico: {mensaje}")
+
+
 # Guarda el tipo resultante de una expresión
 class ResultadoExpresion:
 
@@ -28,15 +38,15 @@ def registrar_funcion(nombre, tipo_retorno):
     tabla_funciones[nombre] = tipo_retorno
 
 
-def verificar_variable(nombre):
+def verificar_variable(nombre, linea=None):
 
     if (
         nombre not in tabla_simbolos
         and nombre not in tabla_funciones
     ):
-        errores_semanticos.append(
-            f"Error semántico: Variable o función "
-            f"'{nombre}' no declarada."
+        _registrar_error_semantico(
+            f"Variable o función '{nombre}' no declarada.",
+            linea,
         )
 
 
@@ -179,7 +189,8 @@ def tipos_compatibles(
 
 def verificar_asignacion_tipos(
     tipo_destino,
-    tipo_valor
+    tipo_valor,
+    linea=None
 ):
 
     if (
@@ -192,16 +203,17 @@ def verificar_asignacion_tipos(
         tipo_destino,
         tipo_valor
     ):
-        errores_semanticos.append(
-            f"Error semántico: No se puede asignar "
-            f"un {tipo_valor} a una variable "
-            f"{tipo_destino}."
+        _registrar_error_semantico(
+            f"No se puede asignar un {tipo_valor} "
+            f"a una variable {tipo_destino}.",
+            linea,
         )
 
 
 def verificar_asignacion(
     nombre,
-    tipo_valor
+    tipo_valor,
+    linea=None
 ):
 
     if nombre not in tabla_simbolos:
@@ -209,7 +221,8 @@ def verificar_asignacion(
 
     verificar_asignacion_tipos(
         tabla_simbolos[nombre],
-        tipo_valor
+        tipo_valor,
+        linea
     )
 
 
@@ -227,7 +240,8 @@ def es_tipo_numerico(tipo):
 def verificar_operacion(
     valor_izquierdo,
     operador,
-    valor_derecho
+    valor_derecho,
+    linea=None
 ):
 
     tipo_izquierdo = obtener_tipo(
@@ -283,11 +297,11 @@ def verificar_operacion(
             "int"
         )
 
-    errores_semanticos.append(
-        f"Error semántico: Operación incompatible. "
-        f"No se puede aplicar el operador '{operador}' "
-        f"entre un valor de tipo '{tipo_izquierdo}' "
-        f"y un valor de tipo '{tipo_derecho}'."
+    _registrar_error_semantico(
+        f"Operación incompatible. No se puede aplicar el "
+        f"operador '{operador}' entre un valor de tipo "
+        f"'{tipo_izquierdo}' y un valor de tipo '{tipo_derecho}'.",
+        linea,
     )
 
     return crear_resultado_tipo(
@@ -324,7 +338,8 @@ def finalizar_funcion():
 
 def verificar_retorno(
     valor=None,
-    tiene_valor=False
+    tiene_valor=False,
+    linea=None
 ):
 
     # Un return fuera de una función
@@ -346,21 +361,21 @@ def verificar_retorno(
     if tipo_declarado == "void":
 
         if tiene_valor:
-            errores_semanticos.append(
-                f"Error semántico: La función "
-                f"'{nombre_funcion}' es de tipo void "
-                "y no puede retornar un valor."
+            _registrar_error_semantico(
+                f"La función '{nombre_funcion}' es de tipo "
+                "void y no puede retornar un valor.",
+                linea,
             )
 
         return
 
     # Una función con tipo debe retornar un valor
     if not tiene_valor:
-        errores_semanticos.append(
-            f"Error semántico: La función "
-            f"'{nombre_funcion}' declara un retorno "
-            f"de tipo '{tipo_declarado}' y no puede "
-            "usar 'return;' sin un valor."
+        _registrar_error_semantico(
+            f"La función '{nombre_funcion}' declara un "
+            f"retorno de tipo '{tipo_declarado}' y no puede "
+            "usar 'return;' sin un valor.",
+            linea,
         )
 
         return
@@ -377,9 +392,9 @@ def verificar_retorno(
         tipo_declarado,
         tipo_retornado
     ):
-        errores_semanticos.append(
-            f"Error semántico: La función "
-            f"'{nombre_funcion}' declara un retorno "
-            f"de tipo '{tipo_declarado}', pero retorna "
-            f"un valor de tipo '{tipo_retornado}'."
+        _registrar_error_semantico(
+            f"La función '{nombre_funcion}' declara un "
+            f"retorno de tipo '{tipo_declarado}', pero "
+            f"retorna un valor de tipo '{tipo_retornado}'.",
+            linea,
         )
