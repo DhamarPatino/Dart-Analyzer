@@ -1,0 +1,3 @@
+Error sintáctico en la línea 35, columna 19: se encontró '=' (ASSIGN). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 38, columna 29: se encontró '2' (INTEGER_LITERAL). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 43, columna 6: se encontró 'promedioFinal' (IDENTIFIER). Revise la instrucción anterior y la posición de este token.

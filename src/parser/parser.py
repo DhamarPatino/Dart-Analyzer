@@ -17,6 +17,7 @@ from src.semantic.semantic import (
 )
 
 
+
 errores_sintacticos = []
 
 
@@ -164,7 +165,8 @@ def p_declaracion_tipo_explicito(p):
 
     verificar_asignacion(
         p[2],
-        tipo_valor
+        tipo_valor,
+        linea=p.lineno(1)
     )
 #-- Dhamar Patiño
 
@@ -213,7 +215,8 @@ def p_declaracion_inferencia_inmutable(p):
 
         verificar_asignacion(
             p[3],
-            tipo_valor
+            tipo_valor,
+            linea=p.lineno(1)
         )
 #-- Cristina Pihuave
 
@@ -241,7 +244,8 @@ def p_asignacion(p):
 
     if not es_acceso:
         verificar_variable(
-            p[1]
+            p[1],
+            linea=p.lineno(1)
         )
 
     # Regla 2: asignación normal
@@ -255,14 +259,16 @@ def p_asignacion(p):
 
             verificar_asignacion_tipos(
                 obtener_tipo(p[1]),
-                tipo_valor
+                tipo_valor,
+                linea=p.lineno(1)
             )
 
         else:
 
             verificar_asignacion(
                 p[1],
-                tipo_valor
+                tipo_valor,
+                linea=p.lineno(1)
             )
 
         return
@@ -282,7 +288,8 @@ def p_asignacion(p):
     resultado = verificar_operacion(
         p[1],
         operador,
-        p[3]
+        p[3],
+        linea=p.lineno(1)
     )
 
     # Regla 2: revisar el resultado asignado
@@ -290,14 +297,16 @@ def p_asignacion(p):
 
         verificar_asignacion_tipos(
             obtener_tipo(p[1]),
-            obtener_tipo(resultado)
+            obtener_tipo(resultado),
+            linea=p.lineno(1)
         )
 
     else:
 
         verificar_asignacion(
             p[1],
-            obtener_tipo(resultado)
+            obtener_tipo(resultado),
+            linea=p.lineno(1)
         )
 #-- Dhamar Patiño
 
@@ -322,7 +331,8 @@ def p_expresion_aditiva(p):
         p[0] = verificar_operacion(
             p[1],
             p[2],
-            p[3]
+            p[3],
+            linea=p.lineno(2)
         )
 
 
@@ -344,7 +354,8 @@ def p_expresion_multiplicativa(p):
         p[0] = verificar_operacion(
             p[1],
             p[2],
-            p[3]
+            p[3],
+            linea=p.lineno(2)
         )
 #-- Cristina Pihuave
 
@@ -469,7 +480,8 @@ def p_factor(p):
 
         # Regla 1
         verificar_variable(
-            p[1]
+            p[1],
+            linea=p.lineno(1)
         )
 
         p[0] = p[1]
@@ -533,12 +545,14 @@ def p_inicializacion_for(p):
     if p.slice[1].type == "IDENTIFIER":
 
         verificar_variable(
-            p[1]
+            p[1],
+            linea=p.lineno(1)
         )
 
         verificar_asignacion(
             p[1],
-            obtener_tipo(p[3])
+            obtener_tipo(p[3]),
+            linea=p.lineno(1)
         )
 
     # Declaración con var
@@ -559,7 +573,8 @@ def p_inicializacion_for(p):
 
         verificar_asignacion(
             p[2],
-            obtener_tipo(p[4])
+            obtener_tipo(p[4]),
+            linea=p.lineno(1)
         )
 
 
@@ -574,7 +589,8 @@ def p_actualizacion_for(p):
 
     # Regla 1
     verificar_variable(
-        p[1]
+        p[1],
+        linea=p.lineno(1)
     )
 
     # ++ solo se reconoce sintácticamente
@@ -596,13 +612,15 @@ def p_actualizacion_for(p):
     resultado = verificar_operacion(
         p[1],
         operador,
-        p[3]
+        p[3],
+        linea=p.lineno(1)
     )
 
     # Regla 2
     verificar_asignacion(
         p[1],
-        obtener_tipo(resultado)
+        obtener_tipo(resultado),
+        linea=p.lineno(1)
     )
 #-- Cristina Pihuave
 
@@ -677,7 +695,8 @@ def p_acceso_indice(p):
 
     # Regla 1
     verificar_variable(
-        p[1]
+        p[1],
+        linea=p.lineno(1)
     )
 
     p[0] = crear_resultado_tipo(
@@ -722,14 +741,16 @@ def p_retorno(p):
 
         verificar_retorno(
             valor=p[2],
-            tiene_valor=True
+            tiene_valor=True,
+            linea=p.lineno(1)
         )
 
     # Regla 4: return sin valor
     else:
 
         verificar_retorno(
-            tiene_valor=False
+            tiene_valor=False,
+            linea=p.lineno(1)
         )
 #-- Dhamar Patiño
 
@@ -757,7 +778,8 @@ def p_funcion_flecha(p):
     # Regla 4: la expresión es el retorno
     verificar_retorno(
         valor=p[2],
-        tiene_valor=True
+        tiene_valor=True,
+        linea=p.lineno(1)
     )
 
     finalizar_funcion()
@@ -805,7 +827,8 @@ def p_llamada_funcion(p):
 
     # Regla 1
     verificar_variable(
-        p[1]
+        p[1],
+        linea=p.lineno(1)
     )
 
     p[0] = p[1]
@@ -838,7 +861,8 @@ def p_llamada_metodo(p):
 
     # Regla 1
     verificar_variable(
-        p[1]
+        p[1],
+        linea=p.lineno(1)
     )
 
     p[0] = crear_resultado_tipo(
@@ -917,49 +941,74 @@ def p_error(p):
             p.lexpos
         )
 
-        if p.type == "RLLAVE":
+        # Caso puntual: falta '(' justo después de 'if' o 'for'.
+        token_anterior = getattr(
+            p.lexer,
+            "token_anterior",
+            None
+        )
 
-            sugerencia = (
-                "Revise si falta un punto y coma antes de cerrar "
-                "el bloque o si las llaves están balanceadas."
-            )
+        palabra_if_for = {
+            "IF": "if",
+            "FOR": "for"
+        }.get(
+            token_anterior.type
+            if token_anterior else None
+        )
 
-        elif p.type == "SEMICOLON":
+        if palabra_if_for and p.type != "LPAREN":
 
-            sugerencia = (
-                "Revise si falta una expresión o un valor antes "
-                "del punto y coma."
-            )
-
-        elif p.type in {
-            "RPAREN",
-            "RCORCHETE"
-        }:
-
-            sugerencia = (
-                "Revise los paréntesis, los corchetes y los "
-                "elementos de la expresión."
-            )
-
-        elif p.type == "IMPORT":
-
-            sugerencia = (
-                "Las importaciones deben escribirse al inicio "
-                "del archivo, antes de las declaraciones."
+            mensaje = (
+                f"Error sintáctico en la línea {p.lineno}, "
+                f"columna {columna}: se esperaba '(' después "
+                f"de '{palabra_if_for}'."
             )
 
         else:
 
-            sugerencia = (
-                "Revise la instrucción anterior y la posición "
-                "de este token."
-            )
+            if p.type == "RLLAVE":
 
-        mensaje = (
-            f"Error sintáctico en la línea {p.lineno}, "
-            f"columna {columna}: se encontró "
-            f"'{p.value}' ({p.type}). {sugerencia}"
-        )
+                sugerencia = (
+                    "Revise si falta un punto y coma antes de cerrar "
+                    "el bloque o si las llaves están balanceadas."
+                )
+
+            elif p.type == "SEMICOLON":
+
+                sugerencia = (
+                    "Revise si falta una expresión o un valor antes "
+                    "del punto y coma."
+                )
+
+            elif p.type in {
+                "RPAREN",
+                "RCORCHETE"
+            }:
+
+                sugerencia = (
+                    "Revise los paréntesis, los corchetes y los "
+                    "elementos de la expresión."
+                )
+
+            elif p.type == "IMPORT":
+
+                sugerencia = (
+                    "Las importaciones deben escribirse al inicio "
+                    "del archivo, antes de las declaraciones."
+                )
+
+            else:
+
+                sugerencia = (
+                    "Revise la instrucción anterior y la posición "
+                    "de este token."
+                )
+
+            mensaje = (
+                f"Error sintáctico en la línea {p.lineno}, "
+                f"columna {columna}: se encontró "
+                f"'{p.value}' ({p.type}). {sugerencia}"
+            )
 
     else:
 
@@ -974,6 +1023,98 @@ def p_error(p):
     errores_sintacticos.append(
         mensaje
     )
+#-- Cristina Pihuave
+
+
+# ÁRBOL SINTÁCTICO
+
+#-- Cristina Pihuave
+# Arma el árbol de derivación envolviendo cada regla p_*, sin tocar
+# el código de ninguna. Token = MAYÚSCULA, regla = minúscula.
+
+arbol_pila = []
+
+
+def reiniciar_arbol():
+    arbol_pila.clear()
+
+
+def obtener_arbol():
+    if arbol_pila:
+        return arbol_pila[-1]
+
+    return None
+
+
+def _es_terminal(tipo_simbolo):
+    return tipo_simbolo.isupper() or tipo_simbolo == "error"
+
+
+def _registrar_nodo_arbol(p):
+    cantidad_simbolos = len(p.slice) - 1
+
+    indices_no_terminales = [
+        i for i in range(1, cantidad_simbolos + 1)
+        if not _es_terminal(p.slice[i].type)
+    ]
+
+    cantidad_no_terminales = len(indices_no_terminales)
+
+    subarboles = (
+        arbol_pila[-cantidad_no_terminales:]
+        if cantidad_no_terminales
+        else []
+    )
+
+    if cantidad_no_terminales:
+        del arbol_pila[-cantidad_no_terminales:]
+
+    iterador_subarboles = iter(subarboles)
+    hijos = []
+
+    for i in range(1, cantidad_simbolos + 1):
+        simbolo = p.slice[i]
+
+        if _es_terminal(simbolo.type):
+            hijos.append({
+                "tipo": "token",
+                "nombre": simbolo.type,
+                "valor": simbolo.value,
+                "linea": getattr(simbolo, "lineno", None),
+            })
+
+        else:
+            hijos.append(next(iterador_subarboles))
+
+    arbol_pila.append({
+        "tipo": "regla",
+        "nombre": p.slice[0].type,
+        "hijos": hijos,
+    })
+
+
+def _envolver_regla_para_arbol(funcion_regla):
+
+    def envoltura(p):
+        resultado = funcion_regla(p)
+        _registrar_nodo_arbol(p)
+        return resultado
+
+    envoltura.__doc__ = funcion_regla.__doc__
+    envoltura.__name__ = funcion_regla.__name__
+
+    return envoltura
+
+
+for _nombre_funcion, _funcion in list(globals().items()):
+
+    if (
+        _nombre_funcion.startswith("p_")
+        and _nombre_funcion != "p_error"
+        and callable(_funcion)
+        and getattr(_funcion, "__doc__", None)
+    ):
+        globals()[_nombre_funcion] = _envolver_regla_para_arbol(_funcion)
 #-- Cristina Pihuave
 
 

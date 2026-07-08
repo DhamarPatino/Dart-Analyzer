@@ -1,0 +1,2 @@
+Error léxico en la línea 35, columna 8: '2doParcial' no es un identificador válido porque comienza con un dígito.
+Error léxico en la línea 38, columna 27: el carácter '@' no es válido.

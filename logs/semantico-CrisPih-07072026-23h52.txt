@@ -1,0 +1,4 @@
+Error semántico: Variable o función 'cursoInexistente' no declarada.
+Error semántico: No se puede asignar un String a una variable int.
+Error semántico: Operación incompatible. No se puede aplicar el operador '+' entre un valor de tipo 'double' y un valor de tipo 'String'.
+Error semántico: La función 'calcularAprobados' declara un retorno de tipo 'int', pero retorna un valor de tipo 'String'.
