@@ -235,12 +235,12 @@ class AplicacionAnalizador(tk.Tk):
             borderwidth=0,
         )
 
+# -- Dhamar Patiño
     # TOOLBAR
-
     def _construir_toolbar(self):
         barra = tk.Frame(self, background=PANEL, height=52)
         barra.pack(side="top", fill="x")
-
+        
         tk.Label(
             barra,
             text="</> Analizador Dart — PLY",
@@ -250,14 +250,20 @@ class AplicacionAnalizador(tk.Tk):
             padx=14,
         ).pack(side="left")
 
+        tk.Frame(
+            barra,
+            width=20,
+            background=PANEL
+        ).pack(side="left")
+
         botones = (
-            ("▶ Analizar", self.analizar_todo),
-            ("Léxico", self.analizar_lexico),
-            ("Sintáctico", self.analizar_sintactico),
-            ("Semántico", self.analizar_semantico),
-            ("Limpiar", self.limpiar),
-            ("⭳ Log", self.generar_logs),
             ("Abrir…", self.abrir_archivo),
+            ("▶ Analizar", self.analizar_todo),
+            ("◈  Léxico", self.analizar_lexico),
+            ("⌘  Sintáctico", self.analizar_sintactico),
+            ("⚙ Semántico", self.analizar_semantico),
+            ("🗑️Limpiar", self.limpiar),
+            ("⭳ Log", self.generar_logs),
         )
 
         for texto, accion in botones:
@@ -266,34 +272,44 @@ class AplicacionAnalizador(tk.Tk):
                 text=texto,
                 style="Toolbar.TButton",
                 command=accion,
-            ).pack(side="left", padx=4, pady=8)
+            ).pack(side="left", padx=3, pady=8)
 
+        tk.Frame(
+            barra,
+            background=PANEL
+        ).pack(
+            side="left",
+            expand=True,
+            fill="x"
+        )
+        
         tk.Label(
             barra,
             text="Usuario GitHub:",
             background=PANEL,
             foreground=TEXTO_SECUNDARIO,
-        ).pack(side="left", padx=(16, 4))
+        ).pack(side="left", padx=(0, 5))
 
         tk.Entry(
             barra,
             textvariable=self.usuario_git,
-            width=14,
+            width=15,
             background="#15151f",
             foreground=TEXTO,
             insertbackground=TEXTO,
             relief="flat",
-        ).pack(side="left", ipady=3)
+        ).pack(side="left", ipady=3, padx=(0,12))
 
         self.badge_estado = tk.Label(
             barra,
-            text="Listo",
+            text="✔ Listo",
             background=BORDE,
             foreground=TEXTO,
-            padx=10,
+            padx=13,
             pady=4,
         )
         self.badge_estado.pack(side="right", padx=14)
+# -- Dhamar Patiño
 
     # EDITOR + RESULTADOS
 
@@ -520,6 +536,7 @@ class AplicacionAnalizador(tk.Tk):
         self._actualizar_numeros_linea()
         self._resaltar_editor()
 
+# -- Dhamar Patiño
     def _actualizar_numeros_linea(self):
         cantidad = int(self.texto_codigo.index("end-1c").split(".")[0])
         numeros = "\n".join(str(n) for n in range(1, cantidad + 1))
@@ -528,6 +545,9 @@ class AplicacionAnalizador(tk.Tk):
         self.texto_lineas.delete("1.0", "end")
         self.texto_lineas.insert("1.0", numeros)
         self.texto_lineas.configure(state="disabled")
+        posicion_actual = self.texto_codigo.yview()[0]
+        self.texto_lineas.yview_moveto(posicion_actual)
+# -- Dhamar Patiño
 
     def _resaltar_editor(self):
         codigo = self.texto_codigo.get("1.0", "end-1c")
