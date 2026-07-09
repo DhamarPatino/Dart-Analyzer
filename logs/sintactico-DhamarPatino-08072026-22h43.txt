@@ -1,0 +1,55 @@
+Error sintáctico en la línea 135, columna 14: se encontró '=' (ASSIGN). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 135, columna 14: se encontró '=' (ASSIGN). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 143, columna 2: se encontró 'int' (INT_TYPE). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 143, columna 2: se encontró 'int' (INT_TYPE). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 145, columna 2: se encontró 'if' (IF). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 145, columna 2: se encontró 'if' (IF). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 148, columna 2: se encontró 'for' (FOR). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 148, columna 2: se encontró 'for' (FOR). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 148, columna 19: se encontró '++' (INCREMENT). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 148, columna 19: se encontró '++' (INCREMENT). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 151, columna 2: se encontró 'List' (LIST_TYPE). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 151, columna 2: se encontró 'List' (LIST_TYPE). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 153, columna 2: se encontró 'Map' (MAP_TYPE). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 153, columna 2: se encontró 'Map' (MAP_TYPE). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 155, columna 3: se encontró ';' (SEMICOLON). Revise si falta una expresión o un valor antes del punto y coma.
+Error sintáctico en la línea 155, columna 3: se encontró ';' (SEMICOLON). Revise si falta una expresión o un valor antes del punto y coma.
+Error sintáctico en la línea 166, columna 1: se encontró 'apellido' (IDENTIFIER). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 166, columna 1: se encontró 'apellido' (IDENTIFIER). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 168, columna 1: se encontró 'print' (PRINT). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 168, columna 1: se encontró 'print' (PRINT). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 170, columna 1: se encontró 'if' (IF). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 170, columna 1: se encontró 'if' (IF). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 180, columna 1: se encontró 'edad' (IDENTIFIER). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 180, columna 1: se encontró 'edad' (IDENTIFIER). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 181, columna 1: se encontró 'promedio' (IDENTIFIER). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 181, columna 1: se encontró 'promedio' (IDENTIFIER). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 182, columna 1: se encontró 'aprobado' (IDENTIFIER). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 182, columna 1: se encontró 'aprobado' (IDENTIFIER). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 183, columna 1: se encontró 'nombre' (IDENTIFIER). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 183, columna 1: se encontró 'nombre' (IDENTIFIER). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 184, columna 1: se encontró 'int' (INT_TYPE). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 184, columna 1: se encontró 'int' (INT_TYPE). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 193, columna 2: se encontró 'int' (INT_TYPE). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 193, columna 2: se encontró 'int' (INT_TYPE). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 194, columna 2: se encontró 'String' (STRING_TYPE). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 194, columna 2: se encontró 'String' (STRING_TYPE). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 195, columna 2: se encontró 'a' (IDENTIFIER). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 195, columna 2: se encontró 'a' (IDENTIFIER). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 196, columna 2: se encontró 'bool' (BOOL_TYPE). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 196, columna 2: se encontró 'bool' (BOOL_TYPE). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 197, columna 2: se encontró 'activo' (IDENTIFIER). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 197, columna 2: se encontró 'activo' (IDENTIFIER). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 198, columna 2: se encontró '"hola"' (STRING_LITERAL). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 198, columna 2: se encontró '"hola"' (STRING_LITERAL). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 199, columna 2: se encontró 'true' (TRUE). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 199, columna 2: se encontró 'true' (TRUE). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 208, columna 2: se encontró 'int' (INT_TYPE). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 208, columna 2: se encontró 'int' (INT_TYPE). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 210, columna 2: se encontró '}' (RLLAVE). Revise si falta un punto y coma antes de cerrar el bloque o si las llaves están balanceadas.
+Error sintáctico en la línea 210, columna 2: se encontró '}' (RLLAVE). Revise si falta un punto y coma antes de cerrar el bloque o si las llaves están balanceadas.
+Error sintáctico en la línea 214, columna 2: se encontró '}' (RLLAVE). Revise si falta un punto y coma antes de cerrar el bloque o si las llaves están balanceadas.
+Error sintáctico en la línea 214, columna 2: se encontró '}' (RLLAVE). Revise si falta un punto y coma antes de cerrar el bloque o si las llaves están balanceadas.
+Error sintáctico en la línea 218, columna 2: se encontró '}' (RLLAVE). Revise si falta un punto y coma antes de cerrar el bloque o si las llaves están balanceadas.
+Error sintáctico en la línea 218, columna 2: se encontró '}' (RLLAVE). Revise si falta un punto y coma antes de cerrar el bloque o si las llaves están balanceadas.
+Error sintáctico al final del archivo: la última instrucción o bloque está incompleto. Revise los puntos y coma y los delimitadores.
