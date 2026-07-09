@@ -1,0 +1,2 @@
+Error léxico en la línea 134, columna 2: el carácter '$' no es válido.
+Error léxico en la línea 135, columna 6: '123edad' no es un identificador válido porque comienza con un dígito.

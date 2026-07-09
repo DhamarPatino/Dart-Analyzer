@@ -1,0 +1,2 @@
+Error sintáctico en la línea 5, columna 13: se encontró '=' (ASSIGN). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 26, columna 3: se encontró '(' (LPAREN). Revise la instrucción anterior y la posición de este token.
