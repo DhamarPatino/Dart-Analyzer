@@ -21,6 +21,87 @@ from src.semantic.semantic import (
 errores_sintacticos = []
 
 
+# ÁRBOL SINTÁCTICO
+#
+# Guardamos el árbol en una pila: cada vez que termina una regla,
+# armamos su nodo con armar_nodo_arbol(p) y lo dejamos en la pila.
+# Si esa regla tenía partes que ya eran no terminales (por ejemplo
+# una "expresion" dentro de una "declaracion"), esas partes ya
+# están en la pila como nodos propios, así que solo hay que sacarlos
+# y ponerlos como hijos del nodo nuevo.
+
+#-- Cristina Pihuave
+arbol_pila = []
+
+
+def reiniciar_arbol():
+    arbol_pila.clear()
+
+
+def obtener_arbol():
+    if arbol_pila:
+        return arbol_pila[-1]
+
+    return None
+
+
+def es_terminal(tipo_simbolo):
+    # En este archivo los tokens van en MAYÚSCULA (IDENTIFIER, IF, ...)
+    # y las reglas no terminales en minúscula (declaracion, expresion, ...).
+    # El símbolo especial "error" también se trata como una hoja.
+    return tipo_simbolo.isupper() or tipo_simbolo == "error"
+
+
+def armar_nodo_arbol(p):
+    """Arma el nodo de la regla que se acaba de reducir y lo agrega
+    a la pila. Se llama al final de cada función p_xxx."""
+
+    cantidad_simbolos = len(p.slice) - 1
+
+    # Primero contamos cuántos de los símbolos de esta regla son
+    # no terminales, porque esos ya están esperando en la pila.
+    cantidad_no_terminales = 0
+
+    for i in range(1, cantidad_simbolos + 1):
+        if not es_terminal(p.slice[i].type):
+            cantidad_no_terminales += 1
+
+    if cantidad_no_terminales > 0:
+        subarboles = arbol_pila[-cantidad_no_terminales:]
+        del arbol_pila[-cantidad_no_terminales:]
+    else:
+        subarboles = []
+
+    indice_subarbol = 0
+    hijos = []
+
+    for i in range(1, cantidad_simbolos + 1):
+        simbolo = p.slice[i]
+
+        if es_terminal(simbolo.type):
+
+            hijos.append({
+                "tipo": "token",
+                "nombre": simbolo.type,
+                "valor": simbolo.value,
+                "linea": getattr(simbolo, "lineno", None),
+            })
+
+        else:
+
+            hijos.append(subarboles[indice_subarbol])
+            indice_subarbol += 1
+
+    nodo = {
+        "tipo": "regla",
+        "nombre": p.slice[0].type,
+        "hijos": hijos,
+    }
+
+    arbol_pila.append(nodo)
+#-- Cristina Pihuave
+
+
 # REGLAS GENERALES DEL PROGRAMA
 
 #-- Dhamar Patiño
@@ -31,7 +112,7 @@ def p_programa(p):
              | lista_elementos_programa
              | vacio
     """
-    pass
+    armar_nodo_arbol(p)
 
 
 def p_lista_importaciones(p):
@@ -39,7 +120,7 @@ def p_lista_importaciones(p):
     lista_importaciones : importacion
                         | lista_importaciones importacion
     """
-    pass
+    armar_nodo_arbol(p)
 
 
 def p_lista_elementos_programa(p):
@@ -47,7 +128,7 @@ def p_lista_elementos_programa(p):
     lista_elementos_programa : elemento_programa
                              | lista_elementos_programa elemento_programa
     """
-    pass
+    armar_nodo_arbol(p)
 
 
 def p_elemento_programa(p):
@@ -56,7 +137,7 @@ def p_elemento_programa(p):
                       | funcion_clasica
                       | funcion_flecha
     """
-    pass
+    armar_nodo_arbol(p)
 
 
 def p_lista_sentencias_opcional(p):
@@ -64,7 +145,7 @@ def p_lista_sentencias_opcional(p):
     lista_sentencias_opcional : lista_sentencias
                               | vacio
     """
-    pass
+    armar_nodo_arbol(p)
 
 
 def p_lista_sentencias(p):
@@ -72,7 +153,7 @@ def p_lista_sentencias(p):
     lista_sentencias : sentencia
                      | lista_sentencias sentencia
     """
-    pass
+    armar_nodo_arbol(p)
 
 
 def p_sentencia(p):
@@ -86,7 +167,7 @@ def p_sentencia(p):
               | llamada_funcion SEMICOLON
               | llamada_metodo SEMICOLON
     """
-    pass
+    armar_nodo_arbol(p)
 #-- Dhamar Patiño
 
 
@@ -96,15 +177,17 @@ def p_sentencia(p):
 def p_elemento_programa_error(p):
     """
     elemento_programa : error SEMICOLON
+                      | error RLLAVE
     """
-    pass
+    armar_nodo_arbol(p)
 
 
 def p_sentencia_error(p):
     """
     sentencia : error SEMICOLON
+              | error RLLAVE
     """
-    pass
+    armar_nodo_arbol(p)
 #-- Cristina Pihuave
 
 
@@ -119,6 +202,7 @@ def p_tipo_primitivo(p):
          | BOOL_TYPE
     """
     p[0] = p[1]
+    armar_nodo_arbol(p)
 
 
 def p_tipo_lista(p):
@@ -126,6 +210,7 @@ def p_tipo_lista(p):
     tipo : LIST_TYPE LESS_THAN tipo GREATER_THAN
     """
     p[0] = f"List<{p[3]}>"
+    armar_nodo_arbol(p)
 #-- Dhamar Patiño
 
 
@@ -135,6 +220,7 @@ def p_tipo_mapa(p):
     tipo : MAP_TYPE LESS_THAN tipo COMA tipo GREATER_THAN
     """
     p[0] = f"Map<{p[3]},{p[5]}>"
+    armar_nodo_arbol(p)
 
 
 def p_tipo_opcional(p):
@@ -143,6 +229,7 @@ def p_tipo_opcional(p):
                   | vacio
     """
     p[0] = p[1]
+    armar_nodo_arbol(p)
 #-- Cristina Pihuave
 
 
@@ -168,6 +255,8 @@ def p_declaracion_tipo_explicito(p):
         tipo_valor,
         linea=p.lineno(1)
     )
+
+    armar_nodo_arbol(p)
 #-- Dhamar Patiño
 
 
@@ -191,6 +280,7 @@ def p_declaracion_inferencia_inmutable(p):
             tipo
         )
 
+        armar_nodo_arbol(p)
         return
 
     tipo_valor = obtener_tipo(
@@ -218,6 +308,8 @@ def p_declaracion_inferencia_inmutable(p):
             tipo_valor,
             linea=p.lineno(1)
         )
+
+    armar_nodo_arbol(p)
 #-- Cristina Pihuave
 
 
@@ -271,6 +363,7 @@ def p_asignacion(p):
                 linea=p.lineno(1)
             )
 
+        armar_nodo_arbol(p)
         return
 
     operadores_compuestos = {
@@ -308,6 +401,8 @@ def p_asignacion(p):
             obtener_tipo(resultado),
             linea=p.lineno(1)
         )
+
+    armar_nodo_arbol(p)
 #-- Dhamar Patiño
 
 
@@ -335,6 +430,8 @@ def p_expresion_aditiva(p):
             linea=p.lineno(2)
         )
 
+    armar_nodo_arbol(p)
+
 
 def p_expresion_multiplicativa(p):
     """
@@ -357,6 +454,8 @@ def p_expresion_multiplicativa(p):
             p[3],
             linea=p.lineno(2)
         )
+
+    armar_nodo_arbol(p)
 #-- Cristina Pihuave
 
 
@@ -368,6 +467,7 @@ def p_expresion(p):
     expresion : expresion_or
     """
     p[0] = p[1]
+    armar_nodo_arbol(p)
 
 
 def p_expresion_or(p):
@@ -386,6 +486,8 @@ def p_expresion_or(p):
             "bool"
         )
 
+    armar_nodo_arbol(p)
+
 
 def p_expresion_and(p):
     """
@@ -402,6 +504,8 @@ def p_expresion_and(p):
         p[0] = crear_resultado_tipo(
             "bool"
         )
+
+    armar_nodo_arbol(p)
 
 
 def p_expresion_igualdad(p):
@@ -420,6 +524,8 @@ def p_expresion_igualdad(p):
         p[0] = crear_resultado_tipo(
             "bool"
         )
+
+    armar_nodo_arbol(p)
 
 
 def p_expresion_relacional(p):
@@ -441,6 +547,8 @@ def p_expresion_relacional(p):
             "bool"
         )
 
+    armar_nodo_arbol(p)
+
 
 def p_expresion_unaria(p):
     """
@@ -457,6 +565,8 @@ def p_expresion_unaria(p):
 
         # Solo conserva el tipo del valor
         p[0] = p[2]
+
+    armar_nodo_arbol(p)
 
 
 def p_factor(p):
@@ -501,6 +611,8 @@ def p_factor(p):
     else:
 
         p[0] = p[1]
+
+    armar_nodo_arbol(p)
 #-- Dhamar Patiño
 
 
@@ -511,7 +623,7 @@ def p_bloque(p):
     """
     bloque : LLLAVE lista_sentencias_opcional RLLAVE
     """
-    pass
+    armar_nodo_arbol(p)
 
 
 def p_sentencia_if(p):
@@ -520,7 +632,7 @@ def p_sentencia_if(p):
                  | IF LPAREN expresion RPAREN bloque ELSE bloque
                  | IF LPAREN expresion RPAREN bloque ELSE sentencia_if
     """
-    pass
+    armar_nodo_arbol(p)
 #-- Dhamar Patiño
 
 
@@ -531,7 +643,7 @@ def p_sentencia_for(p):
     """
     sentencia_for : FOR LPAREN inicializacion_for expresion SEMICOLON actualizacion_for RPAREN bloque
     """
-    pass
+    armar_nodo_arbol(p)
 
 
 def p_inicializacion_for(p):
@@ -577,6 +689,8 @@ def p_inicializacion_for(p):
             linea=p.lineno(1)
         )
 
+    armar_nodo_arbol(p)
+
 
 def p_actualizacion_for(p):
     """
@@ -595,6 +709,7 @@ def p_actualizacion_for(p):
 
     # ++ solo se reconoce sintácticamente
     if p.slice[2].type == "INCREMENT":
+        armar_nodo_arbol(p)
         return
 
     operadores_compuestos = {
@@ -622,6 +737,8 @@ def p_actualizacion_for(p):
         obtener_tipo(resultado),
         linea=p.lineno(1)
     )
+
+    armar_nodo_arbol(p)
 #-- Cristina Pihuave
 
 
@@ -633,6 +750,7 @@ def p_lista(p):
     lista : LCORCHETE elementos_lista_opcionales RCORCHETE
     """
     p[0] = []
+    armar_nodo_arbol(p)
 
 
 def p_elementos_lista_opcionales(p):
@@ -641,7 +759,7 @@ def p_elementos_lista_opcionales(p):
                                | elementos_lista COMA
                                | vacio
     """
-    pass
+    armar_nodo_arbol(p)
 
 
 def p_elementos_lista(p):
@@ -649,7 +767,7 @@ def p_elementos_lista(p):
     elementos_lista : expresion
                     | elementos_lista COMA expresion
     """
-    pass
+    armar_nodo_arbol(p)
 #-- Dhamar Patiño
 
 
@@ -661,6 +779,7 @@ def p_mapa(p):
     mapa : LLLAVE pares_mapa_opcionales RLLAVE
     """
     p[0] = {}
+    armar_nodo_arbol(p)
 
 
 def p_pares_mapa_opcionales(p):
@@ -669,7 +788,7 @@ def p_pares_mapa_opcionales(p):
                           | pares_mapa COMA
                           | vacio
     """
-    pass
+    armar_nodo_arbol(p)
 
 
 def p_pares_mapa(p):
@@ -677,14 +796,14 @@ def p_pares_mapa(p):
     pares_mapa : par_mapa
                | pares_mapa COMA par_mapa
     """
-    pass
+    armar_nodo_arbol(p)
 
 
 def p_par_mapa(p):
     """
     par_mapa : expresion COLON expresion
     """
-    pass
+    armar_nodo_arbol(p)
 
 
 def p_acceso_indice(p):
@@ -702,6 +821,8 @@ def p_acceso_indice(p):
     p[0] = crear_resultado_tipo(
         obtener_tipo_elemento(p[1])
     )
+
+    armar_nodo_arbol(p)
 #-- Cristina Pihuave
 
 
@@ -721,6 +842,8 @@ def p_encabezado_funcion_clasica(p):
         p[1]
     )
 
+    armar_nodo_arbol(p)
+
 
 def p_funcion_clasica(p):
     """
@@ -728,6 +851,7 @@ def p_funcion_clasica(p):
     """
 
     finalizar_funcion()
+    armar_nodo_arbol(p)
 
 
 def p_retorno(p):
@@ -752,6 +876,8 @@ def p_retorno(p):
             tiene_valor=False,
             linea=p.lineno(1)
         )
+
+    armar_nodo_arbol(p)
 #-- Dhamar Patiño
 
 
@@ -769,6 +895,8 @@ def p_encabezado_funcion_flecha(p):
         p[1]
     )
 
+    armar_nodo_arbol(p)
+
 
 def p_funcion_flecha(p):
     """
@@ -783,6 +911,7 @@ def p_funcion_flecha(p):
     )
 
     finalizar_funcion()
+    armar_nodo_arbol(p)
 #-- Cristina Pihuave
 
 
@@ -799,13 +928,15 @@ def p_parametro(p):
         p[1]
     )
 
+    armar_nodo_arbol(p)
+
 
 def p_parametros(p):
     """
     parametros : parametro
                | parametros COMA parametro
     """
-    pass
+    armar_nodo_arbol(p)
 
 
 def p_parametros_opcionales(p):
@@ -813,7 +944,7 @@ def p_parametros_opcionales(p):
     parametros_opcionales : parametros
                           | vacio
     """
-    pass
+    armar_nodo_arbol(p)
 #-- Dhamar Patiño
 
 
@@ -833,13 +964,15 @@ def p_llamada_funcion(p):
 
     p[0] = p[1]
 
+    armar_nodo_arbol(p)
+
 
 def p_argumentos_opcionales(p):
     """
     argumentos_opcionales : argumentos
                           | vacio
     """
-    pass
+    armar_nodo_arbol(p)
 
 
 def p_argumentos(p):
@@ -847,7 +980,7 @@ def p_argumentos(p):
     argumentos : expresion
                | argumentos COMA expresion
     """
-    pass
+    armar_nodo_arbol(p)
 #-- Dhamar Patiño
 
 
@@ -868,6 +1001,8 @@ def p_llamada_metodo(p):
     p[0] = crear_resultado_tipo(
         None
     )
+
+    armar_nodo_arbol(p)
 #-- Cristina Pihuave
 
 
@@ -878,7 +1013,7 @@ def p_impresion(p):
     """
     impresion : PRINT LPAREN expresion RPAREN SEMICOLON
     """
-    pass
+    armar_nodo_arbol(p)
 
 
 def p_ingreso_datos(p):
@@ -890,6 +1025,8 @@ def p_ingreso_datos(p):
     p[0] = crear_resultado_tipo(
         "String"
     )
+
+    armar_nodo_arbol(p)
 #-- Dhamar Patiño
 
 
@@ -900,7 +1037,7 @@ def p_importacion(p):
     """
     importacion : IMPORT STRING_LITERAL SEMICOLON
     """
-    pass
+    armar_nodo_arbol(p)
 #-- Dhamar Patiño
 
 
@@ -912,6 +1049,7 @@ def p_vacio(p):
     vacio :
     """
     p[0] = None
+    armar_nodo_arbol(p)
 #-- Cristina Pihuave
 
 
@@ -1023,98 +1161,6 @@ def p_error(p):
     errores_sintacticos.append(
         mensaje
     )
-#-- Cristina Pihuave
-
-
-# ÁRBOL SINTÁCTICO
-
-#-- Cristina Pihuave
-# Arma el árbol de derivación envolviendo cada regla p_*, sin tocar
-# el código de ninguna. Token = MAYÚSCULA, regla = minúscula.
-
-arbol_pila = []
-
-
-def reiniciar_arbol():
-    arbol_pila.clear()
-
-
-def obtener_arbol():
-    if arbol_pila:
-        return arbol_pila[-1]
-
-    return None
-
-
-def _es_terminal(tipo_simbolo):
-    return tipo_simbolo.isupper() or tipo_simbolo == "error"
-
-
-def _registrar_nodo_arbol(p):
-    cantidad_simbolos = len(p.slice) - 1
-
-    indices_no_terminales = [
-        i for i in range(1, cantidad_simbolos + 1)
-        if not _es_terminal(p.slice[i].type)
-    ]
-
-    cantidad_no_terminales = len(indices_no_terminales)
-
-    subarboles = (
-        arbol_pila[-cantidad_no_terminales:]
-        if cantidad_no_terminales
-        else []
-    )
-
-    if cantidad_no_terminales:
-        del arbol_pila[-cantidad_no_terminales:]
-
-    iterador_subarboles = iter(subarboles)
-    hijos = []
-
-    for i in range(1, cantidad_simbolos + 1):
-        simbolo = p.slice[i]
-
-        if _es_terminal(simbolo.type):
-            hijos.append({
-                "tipo": "token",
-                "nombre": simbolo.type,
-                "valor": simbolo.value,
-                "linea": getattr(simbolo, "lineno", None),
-            })
-
-        else:
-            hijos.append(next(iterador_subarboles))
-
-    arbol_pila.append({
-        "tipo": "regla",
-        "nombre": p.slice[0].type,
-        "hijos": hijos,
-    })
-
-
-def _envolver_regla_para_arbol(funcion_regla):
-
-    def envoltura(p):
-        resultado = funcion_regla(p)
-        _registrar_nodo_arbol(p)
-        return resultado
-
-    envoltura.__doc__ = funcion_regla.__doc__
-    envoltura.__name__ = funcion_regla.__name__
-
-    return envoltura
-
-
-for _nombre_funcion, _funcion in list(globals().items()):
-
-    if (
-        _nombre_funcion.startswith("p_")
-        and _nombre_funcion != "p_error"
-        and callable(_funcion)
-        and getattr(_funcion, "__doc__", None)
-    ):
-        globals()[_nombre_funcion] = _envolver_regla_para_arbol(_funcion)
 #-- Cristina Pihuave
 
 
