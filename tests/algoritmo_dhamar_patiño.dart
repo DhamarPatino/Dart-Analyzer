@@ -12,6 +12,7 @@ final String biblioteca = "Biblioteca Central";
 
 var usuarioActivo = true;
 bool tieneMultas = false;
+int opcion = 2;
 
 List<String> libros = [
   "Estructuras de Datos",
@@ -33,13 +34,12 @@ int calcularDiasRetraso(int dias) => dias * dias;
 
 void main() {
 
-  print("Ingrese el nombre del usuario:");
-
   String nombre = stdin.readLineSync()!;
+  print("Bienvenido, $nombre");
 
   print("Libros disponibles:");
 
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < maxPrestamos; i++) {
     print(libros[i]);
   }
 
@@ -59,6 +59,12 @@ void main() {
     print("Biblioteca: $biblioteca");
     print("Disponibilidad: $porcentaje");
     print("Penalización calculada: $penalizacion");
+
+    print("Seleccione el número del libro a prestar:");
+    String libro = libros[opcion - 1];
+
+    print("Préstamo realizado con éxito.");
+    print("Libro prestado: $libro");
 
   } else {
 
