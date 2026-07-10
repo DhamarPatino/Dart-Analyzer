@@ -329,7 +329,20 @@ lexer = lex.lex()
 #-- Cristina Pihuave
 lexer.pending_errors = []
 
-# Recuerda el token anterior, para mensajes de error sintáctico más claros.
+# Para dar mensajes de error sintáctico más claros (ej. "se esperaba
+# '(' después de 'if'"), el parser necesita saber cuál fue el token
+# ANTERIOR al que falló. PLY no guarda ese historial, así que lo
+# hacemos nosotras: guardamos la función original lexer.token() en
+# _token_original, y la reemplazamos por _token_con_seguimiento(), que
+# hace lo mismo que la original pero además va anotando en
+# lexer.token_actual / lexer.token_anterior cuál fue el último token
+# y cuál el anterior a ese. Como el parser sigue llamando a
+# lexer.token() (ahora es _token_con_seguimiento), este seguimiento
+# queda actualizado automáticamente en cada paso del análisis.
+
+lexer.token_actual = None
+lexer.token_anterior = None
+
 _token_original = lexer.token
 
 
@@ -344,10 +357,13 @@ def _token_con_seguimiento():
 
 
 lexer.token = _token_con_seguimiento
-lexer.token_actual = None
-lexer.token_anterior = None
 
-# Reinicia el seguimiento cada vez que se carga código nuevo.
+# Cada vez que se carga un código nuevo (lexer.input(...)), hay que
+# borrar el token anterior/actual del análisis pasado. Se hace con
+# el mismo truco: guardar la función input() original y reemplazarla
+# por una que primero reinicia el seguimiento y luego llama a la
+# original.
+
 _input_original = lexer.input
 
 
