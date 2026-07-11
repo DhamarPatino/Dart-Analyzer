@@ -940,7 +940,7 @@ def p_funcion_flecha(p):
 
 # PARÁMETROS
 
-#-- Dhamar Patiño
+#-- Cristina Pihuave
 def p_parametro(p):
     """
     parametro : tipo IDENTIFIER
@@ -968,12 +968,12 @@ def p_parametros_opcionales(p):
                           | vacio
     """
     armar_nodo_arbol(p)
-#-- Dhamar Patiño
+#-- Cristina Pihuave
 
 
 # LLAMADAS DE FUNCIONES
 
-#-- Dhamar Patiño
+#-- Cristina Pihuave
 def p_llamada_funcion(p):
     """
     llamada_funcion : IDENTIFIER LPAREN argumentos_opcionales RPAREN
@@ -1004,7 +1004,7 @@ def p_argumentos(p):
                | argumentos COMA expresion
     """
     armar_nodo_arbol(p)
-#-- Dhamar Patiño
+#-- Cristina Pihuave
 
 
 # LLAMADAS DE MÉTODOS
