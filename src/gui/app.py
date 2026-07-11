@@ -17,6 +17,7 @@ from src.semantic.semantic import (
     pila_funciones,
     tabla_funciones,
     tabla_simbolos,
+    variables_inmutables,
 )
 
 
@@ -100,10 +101,7 @@ def usuario_git_por_defecto():
 
 
 # ANÁLISIS
-#
-# Reutiliza el lexer, el parser y el semantic tal como están; cada función
-# repite el mismo flujo que ya usa src/main.py para aislar cada fase.
-
+# -- Dhamar Patiño
 def ejecutar_lexico(codigo):
     lexer.lineno = 1
     lexer.pending_errors.clear()
@@ -142,6 +140,7 @@ def ejecutar_semantico(codigo):
     tabla_simbolos.clear()
     tabla_funciones.clear()
     pila_funciones.clear()
+    variables_inmutables.clear()
     errores_semanticos.clear()
     reiniciar_arbol()
     lexer.lineno = 1
@@ -159,6 +158,7 @@ def ejecutar_semantico(codigo):
 
 # VENTANA PRINCIPAL
 
+#-- Cristina Pihuave
 class AplicacionAnalizador(tk.Tk):
 
     def __init__(self):
@@ -309,7 +309,7 @@ class AplicacionAnalizador(tk.Tk):
             pady=4,
         )
         self.badge_estado.pack(side="right", padx=14)
-# -- Dhamar Patiño
+# -- Cristina Pihuave
 
     # EDITOR + RESULTADOS
 
@@ -605,6 +605,8 @@ class AplicacionAnalizador(tk.Tk):
 
     # ACCIONES DE ANÁLISIS
 
+    #-- Cristina Pihuave
+
     def obtener_codigo(self):
         return self.texto_codigo.get("1.0", "end-1c")
 
@@ -667,6 +669,8 @@ class AplicacionAnalizador(tk.Tk):
         self._actualizar_estado([])
 
     # POBLAR PESTAÑAS
+
+    #-- Cristina Pihuave
 
     def _poblar_tokens(self, tokens):
         self.tab_tokens.delete(*self.tab_tokens.get_children())
@@ -734,6 +738,8 @@ class AplicacionAnalizador(tk.Tk):
 
     # LOGS
 
+    #-- Dhamar Patiño
+
     def _escribir_logs(self, errores_lexicos, errores_sint, errores_sem):
         RUTA_LOGS.mkdir(parents=True, exist_ok=True)
         fecha = datetime.now().strftime("%d%m%Y-%Hh%M")
@@ -770,6 +776,8 @@ class AplicacionAnalizador(tk.Tk):
         self.analizar_todo()
 
     # ARCHIVO
+
+    #-- Cristina Pihuave
 
     def abrir_archivo(self):
         ruta = filedialog.askopenfilename(
@@ -814,4 +822,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-#-- Cristina Pihuave
+

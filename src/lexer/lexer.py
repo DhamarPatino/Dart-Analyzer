@@ -28,7 +28,6 @@ reserved = {
 }
 
 
-# Identificadores predefinidos utilizados por el subconjunto de Dart.
 predefined_identifiers = {
     "print": "PRINT",
     "stdin": "STDIN",
@@ -251,12 +250,12 @@ def t_DOUBLE_LITERAL(t):
 
 
 def t_INTEGER_LITERAL(t):
-    r"\d+(?![A-Za-z0-9_.])"
+    r"\d+(?=[^A-Za-z0-9_.]|$)"
     t.value = int(t.value)
     return t
 
 
-# Manejo de errores léxicos.
+# Manejo de errores lexicos
 def calculate_column(lexdata, lexpos):
     last_newline = lexdata.rfind(
         "\n",
@@ -329,49 +328,56 @@ lexer = lex.lex()
 #-- Cristina Pihuave
 lexer.pending_errors = []
 
-# Para dar mensajes de error sintáctico más claros (ej. "se esperaba
-# '(' después de 'if'"), el parser necesita saber cuál fue el token
-# ANTERIOR al que falló. PLY no guarda ese historial, así que lo
-# hacemos nosotras: guardamos la función original lexer.token() en
-# _token_original, y la reemplazamos por _token_con_seguimiento(), que
-# hace lo mismo que la original pero además va anotando en
-# lexer.token_actual / lexer.token_anterior cuál fue el último token
-# y cuál el anterior a ese. Como el parser sigue llamando a
-# lexer.token() (ahora es _token_con_seguimiento), este seguimiento
-# queda actualizado automáticamente en cada paso del análisis.
-
+# Guarda el token actual y el anterior para generar errores sintácticos más claros de entender
 lexer.token_actual = None
 lexer.token_anterior = None
 
-_token_original = lexer.token
+# Lleva la cuenta de los '(' que todavía no se han cerrado con ')'.
+# En cada posición guarda "IF", "FOR" o None: si el '(' vino justo
+# después de un if/for, guardamos cuál, para poder avisar si falta
+# el ')' que le corresponde.
+lexer.pila_parens_if_for = []
+
+token_originalcito = lexer.token
 
 
-def _token_con_seguimiento():
-    token = _token_original()
+def token_con_seguimiento():
+    token = token_originalcito()
 
     if token is not None:
         lexer.token_anterior = lexer.token_actual
         lexer.token_actual = token
 
+        if token.type == "LPAREN":
+
+            viene_de_if_for = (
+                lexer.token_anterior.type
+                if lexer.token_anterior
+                and lexer.token_anterior.type in ("IF", "FOR")
+                else None
+            )
+
+            lexer.pila_parens_if_for.append(viene_de_if_for)
+
+        elif token.type == "RPAREN" and lexer.pila_parens_if_for:
+
+            lexer.pila_parens_if_for.pop()
+
     return token
 
 
-lexer.token = _token_con_seguimiento
+lexer.token = token_con_seguimiento
+# Reinicia el seguimiento de tokens al cargar un código nuevo.
 
-# Cada vez que se carga un código nuevo (lexer.input(...)), hay que
-# borrar el token anterior/actual del análisis pasado. Se hace con
-# el mismo truco: guardar la función input() original y reemplazarla
-# por una que primero reinicia el seguimiento y luego llama a la
-# original.
-
-_input_original = lexer.input
+input_original = lexer.input
 
 
-def _input_con_reinicio(datos):
+def input_con_reinicio(datos):
     lexer.token_actual = None
     lexer.token_anterior = None
-    return _input_original(datos)
+    lexer.pila_parens_if_for = []
+    return input_original(datos)
 
 
-lexer.input = _input_con_reinicio
+lexer.input = input_con_reinicio
 #-- Cristina Pihuave

@@ -4,7 +4,7 @@ from datetime import datetime
 from src.lexer.lexer import lexer
 from src.parser.parser import parser, errores_sintacticos
 from src.semantic.semantic import (tabla_simbolos, tabla_funciones, errores_semanticos,
-pila_funciones, verificar_variable, verificar_asignacion, verificar_retorno, crear_resultado_tipo)
+pila_funciones, variables_inmutables, verificar_variable, verificar_asignacion, verificar_retorno, crear_resultado_tipo)
 
 
 #-- Dhamar Patiño
@@ -234,9 +234,12 @@ print(
 
 # ANÁLISIS SEMÁNTICO
 
+#-- Cristina Pihuave
+
 tabla_simbolos.clear()
 tabla_funciones.clear()
 pila_funciones.clear()
+variables_inmutables.clear()
 errores_semanticos.clear()
 
 lexer.lineno = 1
@@ -249,7 +252,9 @@ parser.parse(
     tracking=True,
     debug=False
 )
+#-- Cristina Pihuave
 
+# -- Dhamar Patiño
 ruta_log_semantico = (
     ruta_logs
     / f"semantico-{usuario_git}-{fecha}.txt"

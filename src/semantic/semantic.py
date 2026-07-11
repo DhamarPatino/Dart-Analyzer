@@ -3,6 +3,9 @@ errores_semanticos = []
 tabla_funciones = {}
 pila_funciones = []
 
+# Registra variables final o const para impedir su reasignación.
+variables_inmutables = set()
+
 
 # Agrega el número de línea al mensaje, cuando el parser lo envía.
 def _registrar_error_semantico(mensaje, linea=None):
@@ -30,8 +33,13 @@ def crear_resultado_tipo(tipo):
 # -- Dhamar Patiño
 # Regla 1: variable no declarada
 
-def registrar_variable(nombre, tipo):
+def registrar_variable(nombre, tipo, inmutable=False):
     tabla_simbolos[nombre] = tipo
+
+    if inmutable:
+        variables_inmutables.add(nombre)
+    else:
+        variables_inmutables.discard(nombre)
 
 
 def registrar_funcion(nombre, tipo_retorno):
@@ -50,7 +58,29 @@ def verificar_variable(nombre, linea=None):
         )
 
 
-# Ayuda para obtener el tipo de un valor
+def verificar_reasignacion(nombre, linea=None):
+
+    if nombre in variables_inmutables:
+        _registrar_error_semantico(
+            f"No se puede reasignar '{nombre}' porque se "
+            "declaró como final o const.",
+            linea,
+        )
+
+
+def verificar_condicion_booleana(tipo, linea=None):
+
+    if tipo is None:
+        return
+
+    if tipo != "bool":
+        _registrar_error_semantico(
+            f"La condición debe ser de tipo bool, pero es de tipo "
+            f"'{tipo}'.",
+            linea,
+        )
+
+
 def obtener_tipo(valor):
 
     if isinstance(
@@ -59,7 +89,6 @@ def obtener_tipo(valor):
     ):
         return valor.tipo
 
-    # bool se revisa antes de int
     if isinstance(valor, bool):
         return "bool"
 
@@ -94,7 +123,8 @@ def obtener_tipo(valor):
     return None
 
 
-# Separa los tipos de un Map
+# Separa los tipos de un Map, esto se relaciona a la estructura de datos Map<K, V> en Dart, 
+# donde K es el tipo de la clave y V es el tipo del valor
 def separar_tipos_mapa(contenido):
 
     nivel = 0
@@ -227,7 +257,7 @@ def verificar_asignacion(
 
 
 # -- Cristina Pihuave
-# Regla 3: operaciones con tipos incompatibles
+# Regla 3: operaciones con tipos incompatibles no se pueden realizar
 
 def es_tipo_numerico(tipo):
 
@@ -271,13 +301,13 @@ def verificar_operacion(
             "String"
         )
 
-    # Operaciones entre números
+    # Operaciones entre numeros
     if (
         es_tipo_numerico(tipo_izquierdo)
         and es_tipo_numerico(tipo_derecho)
     ):
 
-        # La división da como resultado double
+        # La divisió¿on da como resultado double
         if operador == "/":
             return crear_resultado_tipo(
                 "double"
@@ -343,7 +373,6 @@ def verificar_retorno(
 ):
 
     # Un return fuera de una función
-    # se revisa en el parser
     if not pila_funciones:
         return
 
@@ -357,7 +386,7 @@ def verificar_retorno(
         funcion_actual["tipo_retorno"]
     )
 
-    # Una función void no retorna valores
+    # Una funcion void no retorna valores
     if tipo_declarado == "void":
 
         if tiene_valor:
