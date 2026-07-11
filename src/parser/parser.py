@@ -5,6 +5,8 @@ from src.lexer.lexer import tokens
 from src.semantic.semantic import (
     registrar_variable,
     verificar_variable,
+    verificar_reasignacion,
+    verificar_condicion_booleana,
     obtener_tipo,
     obtener_tipo_elemento,
     verificar_asignacion,
@@ -19,16 +21,7 @@ from src.semantic.semantic import (
 
 
 errores_sintacticos = []
-
-
-# ÁRBOL SINTÁCTICO
-#
-# Guardamos el árbol en una pila: cada vez que termina una regla,
-# armamos su nodo con armar_nodo_arbol(p) y lo dejamos en la pila.
-# Si esa regla tenía partes que ya eran no terminales (por ejemplo
-# una "expresion" dentro de una "declaracion"), esas partes ya
-# están en la pila como nodos propios, así que solo hay que sacarlos
-# y ponerlos como hijos del nodo nuevo.
+# Construye el árbol sintáctico con una pila de nodos y subárboles.
 
 #-- Cristina Pihuave
 arbol_pila = []
@@ -46,20 +39,13 @@ def obtener_arbol():
 
 
 def es_terminal(tipo_simbolo):
-    # En este archivo los tokens van en MAYÚSCULA (IDENTIFIER, IF, ...)
-    # y las reglas no terminales en minúscula (declaracion, expresion, ...).
-    # El símbolo especial "error" también se trata como una hoja.
+# Tokens en mayuscula, reglas en minuscula, error es una hoja
     return tipo_simbolo.isupper() or tipo_simbolo == "error"
 
 
 def armar_nodo_arbol(p):
-    """Arma el nodo de la regla que se acaba de reducir y lo agrega
-    a la pila. Se llama al final de cada función p_xxx."""
 
     cantidad_simbolos = len(p.slice) - 1
-
-    # Primero contamos cuántos de los símbolos de esta regla son
-    # no terminales, porque esos ya están esperando en la pila.
     cantidad_no_terminales = 0
 
     for i in range(1, cantidad_simbolos + 1):
@@ -253,7 +239,7 @@ def p_declaracion_tipo_explicito(p):
     verificar_asignacion(
         p[2],
         tipo_valor,
-        linea=p.lineno(1)
+        linea=p.lineno(2)
     )
 
     armar_nodo_arbol(p)
@@ -268,7 +254,7 @@ def p_declaracion_inferencia_inmutable(p):
                 | CONST tipo_opcional IDENTIFIER ASSIGN expresion SEMICOLON
     """
 
-    # var toma el tipo del valor
+
     if p.slice[1].type == "VAR":
 
         tipo = obtener_tipo(
@@ -287,20 +273,22 @@ def p_declaracion_inferencia_inmutable(p):
         p[5]
     )
 
-    # final o const sin tipo explícito
+    # final o const sin tipo explicito
     if p[2] is None:
 
         registrar_variable(
             p[3],
-            tipo_valor
+            tipo_valor,
+            inmutable=True
         )
 
-    # final o const con tipo explícito
+    # final o const con tipo explicito
     else:
 
         registrar_variable(
             p[3],
-            p[2]
+            p[2],
+            inmutable=True
         )
 
         verificar_asignacion(
@@ -336,6 +324,11 @@ def p_asignacion(p):
 
     if not es_acceso:
         verificar_variable(
+            p[1],
+            linea=p.lineno(1)
+        )
+
+        verificar_reasignacion(
             p[1],
             linea=p.lineno(1)
         )
@@ -563,7 +556,6 @@ def p_expresion_unaria(p):
 
     else:
 
-        # Solo conserva el tipo del valor
         p[0] = p[2]
 
     armar_nodo_arbol(p)
@@ -632,6 +624,12 @@ def p_sentencia_if(p):
                  | IF LPAREN expresion RPAREN bloque ELSE bloque
                  | IF LPAREN expresion RPAREN bloque ELSE sentencia_if
     """
+
+    verificar_condicion_booleana(
+        obtener_tipo(p[3]),
+        linea=p.lineno(1)
+    )
+
     armar_nodo_arbol(p)
 #-- Dhamar Patiño
 
@@ -643,6 +641,12 @@ def p_sentencia_for(p):
     """
     sentencia_for : FOR LPAREN inicializacion_for expresion SEMICOLON actualizacion_for RPAREN bloque
     """
+
+    verificar_condicion_booleana(
+        obtener_tipo(p[4]),
+        linea=p.lineno(1)
+    )
+
     armar_nodo_arbol(p)
 
 
@@ -653,10 +657,14 @@ def p_inicializacion_for(p):
                        | IDENTIFIER ASSIGN expresion SEMICOLON
     """
 
-    # Variable ya declarada
     if p.slice[1].type == "IDENTIFIER":
 
         verificar_variable(
+            p[1],
+            linea=p.lineno(1)
+        )
+
+        verificar_reasignacion(
             p[1],
             linea=p.lineno(1)
         )
@@ -667,7 +675,6 @@ def p_inicializacion_for(p):
             linea=p.lineno(1)
         )
 
-    # Declaración con var
     elif p.slice[1].type == "VAR":
 
         registrar_variable(
@@ -675,7 +682,6 @@ def p_inicializacion_for(p):
             obtener_tipo(p[4])
         )
 
-    # Declaración con tipo
     else:
 
         registrar_variable(
@@ -686,7 +692,7 @@ def p_inicializacion_for(p):
         verificar_asignacion(
             p[2],
             obtener_tipo(p[4]),
-            linea=p.lineno(1)
+            linea=p.lineno(2)
         )
 
     armar_nodo_arbol(p)
@@ -707,8 +713,27 @@ def p_actualizacion_for(p):
         linea=p.lineno(1)
     )
 
-    # ++ solo se reconoce sintácticamente
+
+    verificar_reasignacion(
+        p[1],
+        linea=p.lineno(1)
+    )
+
     if p.slice[2].type == "INCREMENT":
+
+        resultado = verificar_operacion(
+            p[1],
+            "+",
+            1,
+            linea=p.lineno(1)
+        )
+
+        verificar_asignacion(
+            p[1],
+            obtener_tipo(resultado),
+            linea=p.lineno(1)
+        )
+
         armar_nodo_arbol(p)
         return
 
@@ -835,7 +860,7 @@ def p_encabezado_funcion_clasica(p):
                                | VOID IDENTIFIER LPAREN parametros_opcionales RPAREN LLLAVE
     """
 
-    # Regla 4 de Cristina:
+    # Regla 4:
     # guardar el tipo antes de revisar el cuerpo
     iniciar_funcion(
         p[2],
@@ -889,7 +914,6 @@ def p_encabezado_funcion_flecha(p):
     encabezado_funcion_flecha : tipo IDENTIFIER LPAREN parametros_opcionales RPAREN ARROW
     """
 
-    # Regla 4: guardar el tipo de retorno
     iniciar_funcion(
         p[2],
         p[1]
@@ -903,7 +927,6 @@ def p_funcion_flecha(p):
     funcion_flecha : encabezado_funcion_flecha expresion SEMICOLON
     """
 
-    # Regla 4: la expresión es el retorno
     verificar_retorno(
         valor=p[2],
         tiene_valor=True,
@@ -1079,7 +1102,7 @@ def p_error(p):
             p.lexpos
         )
 
-        # Caso puntual: falta '(' justo después de 'if' o 'for'.
+        # Caso falta "("
         token_anterior = getattr(
             p.lexer,
             "token_anterior",
@@ -1094,12 +1117,35 @@ def p_error(p):
             if token_anterior else None
         )
 
+        # Caso falta ")"
+        pila_parens = getattr(
+            p.lexer,
+            "pila_parens_if_for",
+            []
+        )
+
+        origen_paren_abierto = (
+            pila_parens[-1] if pila_parens else None
+        )
+
         if palabra_if_for and p.type != "LPAREN":
 
             mensaje = (
                 f"Error sintáctico en la línea {p.lineno}, "
                 f"columna {columna}: se esperaba '(' después "
                 f"de '{palabra_if_for}'."
+            )
+
+        elif origen_paren_abierto and p.type != "RPAREN":
+
+            palabra = (
+                "if" if origen_paren_abierto == "IF" else "for"
+            )
+
+            mensaje = (
+                f"Error sintáctico en la línea {p.lineno}, "
+                f"columna {columna}: falta ')' para cerrar la "
+                f"condición del '{palabra}'."
             )
 
         else:
