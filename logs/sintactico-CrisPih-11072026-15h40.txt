@@ -1,0 +1,6 @@
+Error sintáctico en la línea 129, columna 14: se encontró '=' (ASSIGN). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 196, columna 23: se encontró ';' (SEMICOLON). Revise si falta una expresión o un valor antes del punto y coma.
+Error sintáctico en la línea 198, columna 33: se encontró ';' (SEMICOLON). Revise si falta una expresión o un valor antes del punto y coma.
+Error sintáctico en la línea 201, columna 8: se encontró '1' (INTEGER_LITERAL). Revise la instrucción anterior y la posición de este token.
+Error sintáctico en la línea 206, columna 15: falta ')' para cerrar la condición del 'for'.
+Error sintáctico en la línea 215, columna 20: se encontró 'int' (INT_TYPE). Revise la instrucción anterior y la posición de este token.

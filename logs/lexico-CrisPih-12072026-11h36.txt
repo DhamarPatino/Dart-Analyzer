@@ -1,0 +1,1 @@
+Error léxico en la línea 9, columna 1: el carácter '@' no es válido.

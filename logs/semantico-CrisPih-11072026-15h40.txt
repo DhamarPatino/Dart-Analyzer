@@ -1,0 +1,16 @@
+Error semántico en la línea 79: No se puede asignar un double a una variable int.
+Error semántico en la línea 139: Variable o función 'apellido' no declarada.
+Error semántico en la línea 141: Variable o función 'ciudad' no declarada.
+Error semántico en la línea 143: Variable o función 'altura' no declarada.
+Error semántico en la línea 146: No se puede asignar un String a una variable int.
+Error semántico en la línea 147: No se puede asignar un bool a una variable double.
+Error semántico en la línea 148: No se puede asignar un int a una variable bool.
+Error semántico en la línea 149: No se puede asignar un int a una variable String.
+Error semántico en la línea 151: No se puede asignar un String a una variable int.
+Error semántico en la línea 164: Operación incompatible. No se puede aplicar el operador '+' entre un valor de tipo 'int' y un valor de tipo 'String'.
+Error semántico en la línea 167: Operación incompatible. No se puede aplicar el operador '+' entre un valor de tipo 'bool' y un valor de tipo 'int'.
+Error semántico en la línea 169: Operación incompatible. No se puede aplicar el operador '*' entre un valor de tipo 'String' y un valor de tipo 'int'.
+Error semántico en la línea 171: Operación incompatible. No se puede aplicar el operador '/' entre un valor de tipo 'bool' y un valor de tipo 'int'.
+Error semántico en la línea 181: La función 'suma' declara un retorno de tipo 'int', pero retorna un valor de tipo 'String'.
+Error semántico en la línea 185: La función 'resta' declara un retorno de tipo 'int', pero retorna un valor de tipo 'bool'.
+Error semántico en la línea 189: La función 'mostrar' es de tipo void y no puede retornar un valor.

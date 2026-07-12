@@ -1,0 +1,1 @@
+Error semántico en la línea 51: No se puede asignar un int a una variable String.
