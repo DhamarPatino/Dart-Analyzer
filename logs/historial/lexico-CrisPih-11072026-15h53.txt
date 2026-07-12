@@ -1,0 +1,4 @@
+Error léxico en la línea 75, columna 1: el carácter '$' no es válido.
+Error léxico en la línea 75, columna 2: el carácter '$' no es válido.
+Error léxico en la línea 75, columna 3: el carácter '$' no es válido.
+Error léxico en la línea 75, columna 4: el carácter '$' no es válido.
