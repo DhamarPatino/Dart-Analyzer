@@ -1,0 +1,1 @@
+Error semántico en la línea 10: Variable o función 'f' no declarada.
