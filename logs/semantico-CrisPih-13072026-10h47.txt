@@ -1,0 +1,1 @@
+Error semántico en la línea 26: La función 'calcularPromedio' declara un retorno de tipo 'double', pero retorna un valor de tipo 'bool'.

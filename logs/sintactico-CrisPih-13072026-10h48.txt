@@ -1,0 +1,2 @@
+Error sintáctico en la línea 36, columna 26: falta ')' para cerrar la condición del 'for'.
+Error sintáctico en la línea 43, columna 5: se encontró 'print' (PRINT). Revise la instrucción anterior y la posición de este token.
