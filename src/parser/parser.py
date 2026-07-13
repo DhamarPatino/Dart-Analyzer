@@ -12,6 +12,7 @@ from src.semantic.semantic import (
     verificar_asignacion,
     verificar_asignacion_tipos,
     verificar_operacion,
+    verificar_menos_unario,
     crear_resultado_tipo,
     iniciar_funcion,
     finalizar_funcion,
@@ -553,6 +554,14 @@ def p_expresion_unaria(p):
     if len(p) == 2:
 
         p[0] = p[1]
+
+    elif p.slice[1].type == "MINUS":
+
+        # Regla 3: el menos unario solo aplica a números
+        p[0] = verificar_menos_unario(
+            p[2],
+            linea=p.lineno(1)
+        )
 
     else:
 

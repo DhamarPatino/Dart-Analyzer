@@ -339,6 +339,29 @@ def verificar_operacion(
     )
 
 
+# El menos unario solo se aplica a valores numéricos
+def verificar_menos_unario(valor, linea=None):
+
+    tipo = obtener_tipo(valor)
+
+    # Evita errores repetidos
+    if tipo is None:
+        return crear_resultado_tipo(None)
+
+    if not es_tipo_numerico(tipo):
+
+        _registrar_error_semantico(
+            f"El operador '-' unario solo se puede aplicar "
+            f"a valores numéricos, no a un valor de tipo "
+            f"'{tipo}'.",
+            linea,
+        )
+
+        return crear_resultado_tipo(None)
+
+    return crear_resultado_tipo(tipo)
+
+
 # -- Cristina Pihuave
 # Regla 4: retorno incorrecto de funciones
 

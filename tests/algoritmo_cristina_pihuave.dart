@@ -37,6 +37,11 @@ void main() {
         print(materias[i]);
     }
 
+    int asistenciaDiseno = asistencias["Diseno de Interfaces"]!;
+    print("Asistencia en Diseno de Interfaces: $asistenciaDiseno");
+
+    asistencias["Lenguajes de Programacion"] = 95;
+
     if (estudianteActivo && asistencias["Lenguajes de Programacion"] >= 80) {
         print("Estudiante habilitado en $ciudad");
         print("Bienvenido, $nombre");
